@@ -1,0 +1,127 @@
+{
+  "CAT": {
+    "cik": "0000018230",
+    "companyName": "CATERPILLAR INC",
+    "file": "/edgar-financials/CAT.json"
+  },
+  "GE": {
+    "cik": "0000040545",
+    "companyName": "GENERAL ELECTRIC CO",
+    "file": "/edgar-financials/GE.json"
+  },
+  "GEV": {
+    "cik": "0001996810",
+    "companyName": "GE Vernova Inc.",
+    "file": "/edgar-financials/GEV.json"
+  },
+  "RTX": {
+    "cik": "0000101829",
+    "companyName": "RTX Corp",
+    "file": "/edgar-financials/RTX.json"
+  },
+  "BA": {
+    "cik": "0000012927",
+    "companyName": "BOEING CO",
+    "file": "/edgar-financials/BA.json"
+  },
+  "UNP": {
+    "cik": "0000100885",
+    "companyName": "UNION PACIFIC CORP",
+    "file": "/edgar-financials/UNP.json"
+  },
+  "ETN": {
+    "cik": "0001551182",
+    "companyName": "Eaton Corp plc",
+    "file": "/edgar-financials/ETN.json"
+  },
+  "DE": {
+    "cik": "0000315189",
+    "companyName": "DEERE & CO",
+    "file": "/edgar-financials/DE.json"
+  },
+  "HON": {
+    "cik": "0000773840",
+    "companyName": "HONEYWELL INTERNATIONAL INC",
+    "file": "/edgar-financials/HON.json"
+  },
+  "VRT": {
+    "cik": "0001674101",
+    "companyName": "Vertiv Holdings Co",
+    "file": "/edgar-financials/VRT.json"
+  },
+  "LMT": {
+    "cik": "0000936468",
+    "companyName": "LOCKHEED MARTIN CORP",
+    "file": "/edgar-financials/LMT.json"
+  },
+  "PWR": {
+    "cik": "0001050915",
+    "companyName": "QUANTA SERVICES, INC.",
+    "file": "/edgar-financials/PWR.json"
+  },
+  "PH": {
+    "cik": "0000076334",
+    "companyName": "Parker-Hannifin Corp",
+    "file": "/edgar-financials/PH.json"
+  },
+  "HWM": {
+    "cik": "0000004281",
+    "companyName": "Howmet Aerospace Inc.",
+    "file": "/edgar-financials/HWM.json"
+  },
+  "TT": {
+    "cik": "0001466258",
+    "companyName": "Trane Technologies plc",
+    "file": "/edgar-financials/TT.json"
+  },
+  "CMI": {
+    "cik": "0000026172",
+    "companyName": "CUMMINS INC",
+    "file": "/edgar-financials/CMI.json"
+  },
+  "GD": {
+    "cik": "0000040533",
+    "companyName": "GENERAL DYNAMICS CORP",
+    "file": "/edgar-financials/GD.json"
+  },
+  "FDX": {
+    "cik": "0001048911",
+    "companyName": "FEDEX CORP",
+    "file": "/edgar-financials/FDX.json"
+  },
+  "WM": {
+    "cik": "0000823768",
+    "companyName": "WASTE MANAGEMENT INC",
+    "file": "/edgar-financials/WM.json"
+  },
+  "UPS": {
+    "cik": "0001090727",
+    "companyName": "UNITED PARCEL SERVICE INC",
+    "file": "/edgar-financials/UPS.json"
+  },
+  "JCI": {
+    "cik": "0000833444",
+    "companyName": "Johnson Controls International plc",
+    "file": "/edgar-financials/JCI.json"
+  },
+  "CSX": {
+    "cik": "0000277948",
+    "companyName": "CSX CORP",
+    "file": "/edgar-financials/CSX.json"
+  },
+  "EMR": {
+    "cik": "0000032604",
+    "companyName": "EMERSON ELECTRIC CO",
+    "file": "/edgar-financials/EMR.json"
+  },
+  "NOC": {
+    "cik": "0001133421",
+    "companyName": "NORTHROP GRUMMAN CORP /DE/",
+    "file": "/edgar-financials/NOC.json"
+  },
+  "CP": {
+    "cik": "0000016875",
+    "companyName": "CANADIAN PACIFIC KANSAS CITY LTD/CN",
+    "file": "/edgar-financials/CP.json"
+  }
+}

@@ -1,320 +1,138 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { CompanySelector } from "@/components/dashboard/company-selector";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import {
-  Search,
-  Filter,
-  ArrowUpDown,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  MoreHorizontal,
-  ChevronDown,
-} from "lucide-react";
+import { getCompany, recentIndustrialDeals } from "@/lib/industrials-data";
+import { ArrowUpDown, Handshake, Search } from "lucide-react";
 
-interface Deal {
-  id: string;
-  company: string;
-  contact: string;
-  email: string;
-  value: number;
-  stage: string;
-  status: "won" | "pending" | "lost";
-  closeDate: string;
-  rep: string;
-}
-
-const deals: Deal[] = [
-  { id: "1", company: "Acme Corporation", contact: "John Smith", email: "john@acme.com", value: 125000, stage: "Negotiation", status: "won", closeDate: "2024-01-15", rep: "Sarah Chen" },
-  { id: "2", company: "TechStart Inc", contact: "Lisa Wong", email: "lisa@techstart.io", value: 89500, stage: "Proposal", status: "pending", closeDate: "2024-01-22", rep: "Mike Johnson" },
-  { id: "3", company: "GlobalFin Partners", contact: "Robert Davis", email: "rdavis@globalfin.com", value: 245000, stage: "Qualified", status: "pending", closeDate: "2024-02-01", rep: "Emily Davis" },
-  { id: "4", company: "DataSync Solutions", contact: "Emma Wilson", email: "emma@datasync.net", value: 67800, stage: "Lead", status: "lost", closeDate: "2024-01-10", rep: "James Wilson" },
-  { id: "5", company: "CloudBase Ltd", contact: "Michael Chen", email: "m.chen@cloudbase.io", value: 178000, stage: "Negotiation", status: "won", closeDate: "2024-01-18", rep: "Sarah Chen" },
-  { id: "6", company: "Innovate Labs", contact: "Jennifer Park", email: "jpark@innovate.co", value: 156000, stage: "Proposal", status: "pending", closeDate: "2024-01-28", rep: "Lisa Park" },
-  { id: "7", company: "NextGen Systems", contact: "David Lee", email: "david@nextgen.tech", value: 203000, stage: "Qualified", status: "pending", closeDate: "2024-02-05", rep: "Mike Johnson" },
-  { id: "8", company: "Prime Analytics", contact: "Sarah Johnson", email: "sj@primeanalytics.com", value: 94500, stage: "Lead", status: "pending", closeDate: "2024-02-10", rep: "Emily Davis" },
-];
-
-const statusConfig = {
-  won: { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", label: "Won" },
-  pending: { icon: Clock, color: "text-warning", bg: "bg-warning/10", label: "Pending" },
-  lost: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10", label: "Lost" },
-};
-
-export function DealsSection() {
+export function DealsSection({
+  selectedTicker,
+  onTickerChange,
+}: {
+  selectedTicker: string;
+  onTickerChange: (ticker: string) => void;
+}) {
+  const company = getCompany(selectedTicker);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
-  const [stageFilter, setStageFilter] = useState<string>("all");
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [sortKey, setSortKey] = useState<"company" | "value">("value");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [page, setPage] = useState(1);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const pageSize = 5;
+  const [status, setStatus] = useState("all");
+  const [companyOnly, setCompanyOnly] = useState(false);
+  const [sortNewestFirst, setSortNewestFirst] = useState(true);
 
-  const filteredDeals = deals.filter((deal) => {
-    const matchesSearch =
-      deal.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      deal.contact.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = selectedFilter === "all" || deal.status === selectedFilter;
-    const matchesStage = stageFilter === "all" || deal.stage === stageFilter;
-    return matchesSearch && matchesFilter && matchesStage;
-  }).sort((a, b) => {
-    const direction = sortDirection === "asc" ? 1 : -1;
-    if (sortKey === "company") return a.company.localeCompare(b.company) * direction;
-    return (a.value - b.value) * direction;
-  });
+  const visibleDeals = useMemo(() => {
+    const filtered = recentIndustrialDeals.filter((deal) => {
+      const matchesCompany = !companyOnly || deal.ticker === selectedTicker;
+      const matchesStatus = status === "all" || deal.status === status;
+      const matchesSearch = `${deal.acquirer} ${deal.target} ${deal.rationale}`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      return matchesCompany && matchesStatus && matchesSearch;
+    });
 
-  const totalPages = Math.max(1, Math.ceil(filteredDeals.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const visibleDeals = filteredDeals.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
-  const toggleSort = (key: "company" | "value") => {
-    setSortDirection(sortKey === key && sortDirection === "desc" ? "asc" : "desc");
-    setSortKey(key);
-  };
+    return sortNewestFirst ? filtered : [...filtered].reverse();
+  }, [companyOnly, searchQuery, selectedTicker, sortNewestFirst, status]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <p className="text-sm text-muted-foreground">View and manage all your deals in one place</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Industrials M&A Deals</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Recent sector deals, with an optional filter for {company.ticker}.
+          </p>
+        </div>
+        <CompanySelector selectedTicker={selectedTicker} onTickerChange={onTickerChange} />
       </div>
 
-      {/* Filters and search */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
-              type="text"
-              placeholder="Search deals..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64 h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search M&A deals..."
+              className="h-9 w-64 rounded-lg border border-border bg-secondary pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
             />
           </div>
-          <div className="flex items-center gap-2">
-            {["all", "won", "pending", "lost"].map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSelectedFilter(filter)}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200",
-                  selectedFilter === filter
-                    ? "bg-accent text-accent-foreground"
-                    : "bg-secondary text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-        <button
-          onClick={() => setShowAdvancedFilters((visible) => !visible)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
-        >
-          <Filter className="w-4 h-4" />
-          More filters
-          <ChevronDown className={cn("w-3 h-3 transition-transform", showAdvancedFilters && "rotate-180")} />
-        </button>
-      </div>
-
-      {showAdvancedFilters && (
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3 animate-in fade-in slide-in-from-top-2">
-          <span className="text-xs font-medium text-muted-foreground">Stage</span>
-          {["all", "Lead", "Qualified", "Proposal", "Negotiation"].map((stage) => (
+          {["all", "Signed", "Completed", "Announced", "Contested"].map((item) => (
             <button
-              key={stage}
-              onClick={() => {
-                setStageFilter(stage);
-                setPage(1);
-              }}
+              key={item}
+              onClick={() => setStatus(item)}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                stageFilter === stage
-                  ? "bg-accent text-accent-foreground"
-                  : "bg-secondary text-muted-foreground hover:text-foreground"
+                status === item ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
               )}
             >
-              {stage === "all" ? "All stages" : stage}
+              {item === "all" ? "All statuses" : item}
             </button>
           ))}
         </div>
-      )}
-
-      {/* Table */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-secondary/50">
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <button
-                    onClick={() => toggleSort("company")}
-                    className="flex items-center gap-1 hover:text-foreground transition-colors"
-                  >
-                    Company
-                    <ArrowUpDown className="w-3 h-3" />
-                  </button>
-                </th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contact</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <button
-                    onClick={() => toggleSort("value")}
-                    className="flex items-center gap-1 hover:text-foreground transition-colors"
-                  >
-                    Value
-                    <ArrowUpDown className="w-3 h-3" />
-                  </button>
-                </th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Stage</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Rep</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Close Date</th>
-                <th className="w-12"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleDeals.map((deal, index) => {
-                const status = statusConfig[deal.status];
-                const StatusIcon = status.icon;
-
-                return (
-                  <tr
-                    key={deal.id}
-                    onClick={() => setSelectedDeal(deal)}
-                    className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors duration-150 cursor-pointer animate-in fade-in slide-in-from-left-2"
-                    style={{ animationDelay: `${index * 50}ms`, animationFillMode: "both" }}
-                  >
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-md bg-secondary flex items-center justify-center text-xs font-semibold text-muted-foreground">
-                          {deal.company.charAt(0)}
-                        </div>
-                        <span className="text-sm font-medium text-foreground">{deal.company}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div>
-                        <p className="text-sm text-foreground">{deal.contact}</p>
-                        <p className="text-xs text-muted-foreground">{deal.email}</p>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm font-semibold text-foreground">
-                        ${deal.value.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="px-2 py-1 rounded-md bg-secondary text-xs font-medium text-foreground">
-                        {deal.stage}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium", status.bg, status.color)}>
-                        <StatusIcon className="w-3 h-3" />
-                        {status.label}
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm text-muted-foreground">{deal.rep}</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-sm text-muted-foreground">{deal.closeDate}</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <button
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setSelectedDeal(deal);
-                        }}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
-                      >
-                        <MoreHorizontal className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/30">
-          <span className="text-sm text-muted-foreground">
-            Showing {visibleDeals.length} of {filteredDeals.length} deals
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((value) => Math.max(1, value - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200 disabled:opacity-40"
-            >
-              Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
-              <button
-                key={pageNumber}
-                onClick={() => setPage(pageNumber)}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg text-sm transition-colors duration-200",
-                  currentPage === pageNumber
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                )}
-              >
-                {pageNumber}
-              </button>
-            ))}
-            <button
-              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200 disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCompanyOnly((value) => !value)}
+            className={cn(
+              "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+              companyOnly ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {company.ticker} only
+          </button>
+          <button
+            onClick={() => setSortNewestFirst((value) => !value)}
+            className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+          >
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            {sortNewestFirst ? "Newest first" : "Oldest first"}
+          </button>
         </div>
       </div>
 
-      {selectedDeal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl">
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">{selectedDeal.company}</h3>
-                <p className="text-sm text-muted-foreground">{selectedDeal.contact} • {selectedDeal.email}</p>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {visibleDeals.map((deal, index) => (
+          <Card
+            key={deal.id}
+            className="border-border bg-card animate-in fade-in slide-in-from-bottom-2"
+            style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both" }}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-accent">
+                    <Handshake className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base">{deal.acquirer}</CardTitle>
+                    <p className="mt-1 text-sm text-muted-foreground">{deal.target}</p>
+                  </div>
+                </div>
+                <Badge className="bg-secondary text-muted-foreground hover:bg-secondary">
+                  {deal.status}
+                </Badge>
               </div>
-              <button
-                onClick={() => setSelectedDeal(null)}
-                className="rounded-lg px-2 py-1 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                Close
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg bg-secondary p-3">
-                <p className="text-muted-foreground">Value</p>
-                <p className="font-semibold text-foreground">${selectedDeal.value.toLocaleString()}</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-secondary p-3">
+                  <p className="text-muted-foreground">Value</p>
+                  <p className="font-semibold text-foreground">{deal.value}</p>
+                </div>
+                <div className="rounded-lg bg-secondary p-3">
+                  <p className="text-muted-foreground">Date</p>
+                  <p className="font-semibold text-foreground">{deal.date}</p>
+                </div>
               </div>
-              <div className="rounded-lg bg-secondary p-3">
-                <p className="text-muted-foreground">Stage</p>
-                <p className="font-semibold text-foreground">{selectedDeal.stage}</p>
-              </div>
-              <div className="rounded-lg bg-secondary p-3">
-                <p className="text-muted-foreground">Owner</p>
-                <p className="font-semibold text-foreground">{selectedDeal.rep}</p>
-              </div>
-              <div className="rounded-lg bg-secondary p-3">
-                <p className="text-muted-foreground">Close date</p>
-                <p className="font-semibold text-foreground">{selectedDeal.closeDate}</p>
-              </div>
-            </div>
-          </div>
+              <p className="mt-4 text-sm leading-6 text-muted-foreground">{deal.rationale}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {visibleDeals.length === 0 && (
+        <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          No deals match the current filters.
         </div>
       )}
     </div>

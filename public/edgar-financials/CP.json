@@ -1,0 +1,351 @@
+{
+  "source": "SEC EDGAR companyfacts",
+  "ticker": "CP",
+  "cik": "0000016875",
+  "companyName": "CANADIAN PACIFIC KANSAS CITY LTD/CN",
+  "years": [],
+  "statements": {
+    "income": [
+      {
+        "key": "revenue",
+        "label": "Revenue",
+        "values": {}
+      },
+      {
+        "key": "costOfRevenue",
+        "label": "Cost of Revenue",
+        "values": {}
+      },
+      {
+        "key": "grossProfit",
+        "label": "Gross Profit",
+        "values": {}
+      },
+      {
+        "key": "researchDevelopment",
+        "label": "Research & Development",
+        "values": {}
+      },
+      {
+        "key": "sellingGeneralAdministrative",
+        "label": "Selling, General & Administrative",
+        "values": {}
+      },
+      {
+        "key": "operatingExpenses",
+        "label": "Operating Expenses",
+        "values": {}
+      },
+      {
+        "key": "operatingIncome",
+        "label": "Operating Income",
+        "values": {}
+      },
+      {
+        "key": "interestExpense",
+        "label": "Interest Expense",
+        "values": {}
+      },
+      {
+        "key": "interestIncome",
+        "label": "Interest Income",
+        "values": {}
+      },
+      {
+        "key": "otherIncomeExpense",
+        "label": "Other Income / Expense",
+        "values": {}
+      },
+      {
+        "key": "pretaxIncome",
+        "label": "Pretax Income",
+        "values": {}
+      },
+      {
+        "key": "incomeTaxExpense",
+        "label": "Income Tax Expense",
+        "values": {}
+      },
+      {
+        "key": "incomeFromContinuingOperations",
+        "label": "Income from Continuing Operations",
+        "values": {}
+      },
+      {
+        "key": "netIncome",
+        "label": "Net Income",
+        "values": {}
+      },
+      {
+        "key": "netIncomeCommon",
+        "label": "Net Income to Common",
+        "values": {}
+      }
+    ],
+    "balance": [
+      {
+        "key": "cash",
+        "label": "Cash & Equivalents",
+        "values": {}
+      },
+      {
+        "key": "shortTermInvestments",
+        "label": "Short-Term Investments",
+        "values": {}
+      },
+      {
+        "key": "receivables",
+        "label": "Accounts Receivable",
+        "values": {}
+      },
+      {
+        "key": "inventory",
+        "label": "Inventory",
+        "values": {}
+      },
+      {
+        "key": "otherCurrentAssets",
+        "label": "Other Current Assets",
+        "values": {}
+      },
+      {
+        "key": "currentAssets",
+        "label": "Current Assets",
+        "values": {}
+      },
+      {
+        "key": "ppe",
+        "label": "Property, Plant & Equipment",
+        "values": {}
+      },
+      {
+        "key": "operatingLeaseAssets",
+        "label": "Operating Lease Assets",
+        "values": {}
+      },
+      {
+        "key": "goodwill",
+        "label": "Goodwill",
+        "values": {}
+      },
+      {
+        "key": "intangibles",
+        "label": "Intangible Assets",
+        "values": {}
+      },
+      {
+        "key": "longTermInvestments",
+        "label": "Long-Term Investments",
+        "values": {}
+      },
+      {
+        "key": "otherAssets",
+        "label": "Other Assets",
+        "values": {}
+      },
+      {
+        "key": "totalAssets",
+        "label": "Total Assets",
+        "values": {}
+      },
+      {
+        "key": "accountsPayable",
+        "label": "Accounts Payable",
+        "values": {}
+      },
+      {
+        "key": "accruedExpenses",
+        "label": "Accrued Expenses",
+        "values": {}
+      },
+      {
+        "key": "shortTermDebt",
+        "label": "Short-Term Debt",
+        "values": {}
+      },
+      {
+        "key": "currentLiabilities",
+        "label": "Current Liabilities",
+        "values": {}
+      },
+      {
+        "key": "longTermDebt",
+        "label": "Long-Term Debt",
+        "values": {}
+      },
+      {
+        "key": "deferredTaxLiabilities",
+        "label": "Deferred Tax Liabilities",
+        "values": {}
+      },
+      {
+        "key": "pensionLiabilities",
+        "label": "Pension & Postretirement Liabilities",
+        "values": {}
+      },
+      {
+        "key": "operatingLeaseLiabilities",
+        "label": "Operating Lease Liabilities",
+        "values": {}
+      },
+      {
+        "key": "otherLiabilities",
+        "label": "Other Liabilities",
+        "values": {}
+      },
+      {
+        "key": "totalLiabilities",
+        "label": "Total Liabilities",
+        "values": {}
+      },
+      {
+        "key": "commonStock",
+        "label": "Common Stock",
+        "values": {}
+      },
+      {
+        "key": "additionalPaidInCapital",
+        "label": "Additional Paid-In Capital",
+        "values": {}
+      },
+      {
+        "key": "retainedEarnings",
+        "label": "Retained Earnings",
+        "values": {}
+      },
+      {
+        "key": "treasuryStock",
+        "label": "Treasury Stock",
+        "values": {}
+      },
+      {
+        "key": "accumulatedOtherComprehensiveIncome",
+        "label": "Accumulated Other Comprehensive Income",
+        "values": {}
+      },
+      {
+        "key": "noncontrollingInterest",
+        "label": "Noncontrolling Interest",
+        "values": {}
+      },
+      {
+        "key": "equity",
+        "label": "Shareholders' Equity",
+        "values": {}
+      },
+      {
+        "key": "liabilitiesAndEquity",
+        "label": "Liabilities & Equity",
+        "values": {}
+      }
+    ],
+    "cashflow": [
+      {
+        "key": "netIncome",
+        "label": "Net Income",
+        "values": {}
+      },
+      {
+        "key": "depreciationAmortization",
+        "label": "Depreciation & Amortization",
+        "values": {}
+      },
+      {
+        "key": "stockCompensation",
+        "label": "Stock-Based Compensation",
+        "values": {}
+      },
+      {
+        "key": "deferredTaxes",
+        "label": "Deferred Taxes",
+        "values": {}
+      },
+      {
+        "key": "receivablesChange",
+        "label": "Change in Receivables",
+        "values": {}
+      },
+      {
+        "key": "inventoryChange",
+        "label": "Change in Inventory",
+        "values": {}
+      },
+      {
+        "key": "payablesChange",
+        "label": "Change in Payables",
+        "values": {}
+      },
+      {
+        "key": "workingCapitalChange",
+        "label": "Change in Operating Assets & Liabilities",
+        "values": {}
+      },
+      {
+        "key": "operatingCashFlow",
+        "label": "Operating Cash Flow",
+        "values": {}
+      },
+      {
+        "key": "capex",
+        "label": "Capital Expenditures",
+        "values": {}
+      },
+      {
+        "key": "acquisitions",
+        "label": "Acquisitions",
+        "values": {}
+      },
+      {
+        "key": "investmentPurchases",
+        "label": "Investment Purchases",
+        "values": {}
+      },
+      {
+        "key": "investmentSales",
+        "label": "Investment Sales & Maturities",
+        "values": {}
+      },
+      {
+        "key": "investingCashFlow",
+        "label": "Investing Cash Flow",
+        "values": {}
+      },
+      {
+        "key": "debtIssued",
+        "label": "Debt Issued",
+        "values": {}
+      },
+      {
+        "key": "debtRepaid",
+        "label": "Debt Repaid",
+        "values": {}
+      },
+      {
+        "key": "dividendsPaid",
+        "label": "Dividends Paid",
+        "values": {}
+      },
+      {
+        "key": "shareRepurchases",
+        "label": "Share Repurchases",
+        "values": {}
+      },
+      {
+        "key": "financingCashFlow",
+        "label": "Financing Cash Flow",
+        "values": {}
+      },
+      {
+        "key": "fxEffect",
+        "label": "FX Effect on Cash",
+        "values": {}
+      },
+      {
+        "key": "cashChange",
+        "label": "Change in Cash",
+        "values": {}
+      }
+    ]
+  },
+  "updatedAt": "2026-05-10T02:30:39.774Z"
+}

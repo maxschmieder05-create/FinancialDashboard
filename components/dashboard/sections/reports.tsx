@@ -51,11 +51,11 @@ const sourceData = [
 ];
 
 const initialReports = [
-  { id: "1", name: "Monthly Sales Summary", type: "Sales", date: "Jan 20, 2024", status: "ready" },
-  { id: "2", name: "Q4 Performance Analysis", type: "Performance", date: "Jan 18, 2024", status: "ready" },
-  { id: "3", name: "Pipeline Forecast", type: "Forecast", date: "Jan 15, 2024", status: "ready" },
-  { id: "4", name: "Team Productivity Report", type: "Team", date: "Jan 12, 2024", status: "generating" },
-  { id: "5", name: "Lead Source Analysis", type: "Marketing", date: "Jan 10, 2024", status: "ready" },
+  { id: "1", name: "Industrials Market Cap Summary", type: "Market", date: "May 10, 2026", status: "ready" },
+  { id: "2", name: "Top 25 Performance Analysis", type: "Performance", date: "May 10, 2026", status: "ready" },
+  { id: "3", name: "Revenue Forecast", type: "Forecast", date: "May 10, 2026", status: "ready" },
+  { id: "4", name: "M&A Deal Screen", type: "Deals", date: "May 10, 2026", status: "generating" },
+  { id: "5", name: "Customer Concentration", type: "Customers", date: "May 10, 2026", status: "ready" },
 ];
 
 function ReportCard({
@@ -129,7 +129,7 @@ export function ReportsSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <ReportCard
           title="Sales Summary"
-          description="Monthly revenue and deal metrics"
+          description="Top 25 market and revenue metrics"
           icon={BarChart3}
           color="bg-chart-1/10 text-chart-1"
           index={0}
@@ -137,7 +137,7 @@ export function ReportsSection() {
         />
         <ReportCard
           title="Conversion Rates"
-          description="Funnel performance analysis"
+          description="Stock performance analysis"
           icon={TrendingUp}
           color="bg-accent/10 text-accent"
           index={1}
@@ -145,7 +145,7 @@ export function ReportsSection() {
         />
         <ReportCard
           title="Lead Sources"
-          description="Channel attribution breakdown"
+          description="Customer mix breakdown"
           icon={PieChartIcon}
           color="bg-chart-3/10 text-chart-3"
           index={2}

@@ -4,32 +4,36 @@ import { cn } from "@/lib/utils";
 import type { Section } from "@/app/page";
 import { Bell, Calendar, Search, Settings, X } from "lucide-react";
 import { useState } from "react";
+import { CompanySelector } from "@/components/dashboard/company-selector";
+import { topIndustrialCompanies } from "@/lib/industrials-data";
 
 interface HeaderProps {
   activeSection: Section;
+  selectedTicker: string;
+  onTickerChange: (ticker: string) => void;
   onSectionChange: (section: Section) => void;
 }
 
 const sectionTitles: Record<Section, string> = {
   overview: "Overview",
-  pipeline: "Pipeline",
+  pipeline: "Sales",
   deals: "Deals",
   customers: "Customers",
-  team: "Team Performance",
   forecasting: "Forecasting",
-  reports: "Reports",
-  settings: "Settings",
 };
 
 const quickResults: { label: string; section: Section; detail: string }[] = [
-  { label: "Acme Corporation", section: "customers", detail: "Enterprise customer" },
-  { label: "Pipeline Forecast", section: "forecasting", detail: "Revenue forecast" },
-  { label: "Monthly Sales Summary", section: "reports", detail: "Ready report" },
-  { label: "Sarah Chen", section: "team", detail: "Top performer" },
-  { label: "GlobalFin Partners", section: "deals", detail: "Pending deal" },
+  ...topIndustrialCompanies.slice(0, 8).map((company) => ({
+    label: `${company.ticker} ${company.name}`,
+    section: "overview" as Section,
+    detail: company.industry,
+  })),
+  { label: "Industrials M&A", section: "deals", detail: "Recent sector transactions" },
+  { label: "Revenue Forecast", section: "forecasting", detail: "Company revenue and price outlook" },
+  { label: "Top Clients", section: "customers", detail: "Customer concentration by company" },
 ];
 
-export function Header({ activeSection, onSectionChange }: HeaderProps) {
+export function Header({ activeSection, selectedTicker, onTickerChange, onSectionChange }: HeaderProps) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -46,11 +50,14 @@ export function Header({ activeSection, onSectionChange }: HeaderProps) {
         </h1>
         <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="w-4 h-4" />
-          <span>Last 30 days</span>
+          <span>Top 25 industrials</span>
         </div>
       </div>
 
       <div className="flex items-center gap-4">
+        <div className="hidden lg:block">
+          <CompanySelector selectedTicker={selectedTicker} onTickerChange={onTickerChange} compact />
+        </div>
         {/* Search */}
         <div
           className={cn(
@@ -69,6 +76,10 @@ export function Header({ activeSection, onSectionChange }: HeaderProps) {
             onKeyDown={(event) => {
               if (event.key === "Enter" && filteredResults[0]) {
                 onSectionChange(filteredResults[0].section);
+                const ticker = topIndustrialCompanies.find((company) =>
+                  filteredResults[0].label.startsWith(company.ticker)
+                )?.ticker;
+                if (ticker) onTickerChange(ticker);
                 setSearchQuery("");
               }
             }}
@@ -82,6 +93,10 @@ export function Header({ activeSection, onSectionChange }: HeaderProps) {
                     key={result.label}
                     onMouseDown={() => {
                       onSectionChange(result.section);
+                      const ticker = topIndustrialCompanies.find((company) =>
+                        result.label.startsWith(company.ticker)
+                      )?.ticker;
+                      if (ticker) onTickerChange(ticker);
                       setSearchQuery("");
                     }}
                     className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors"
@@ -109,9 +124,8 @@ export function Header({ activeSection, onSectionChange }: HeaderProps) {
 
         {/* User avatar */}
         <button
-          onClick={() => onSectionChange("settings")}
           className="w-9 h-9 rounded-lg overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-accent/50 transition-all duration-200"
-          aria-label="Open settings"
+          aria-label="User profile"
         >
           <div className="w-full h-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-xs font-semibold text-accent-foreground">
             JD
@@ -134,16 +148,16 @@ export function Header({ activeSection, onSectionChange }: HeaderProps) {
             </button>
           </div>
           {[
-            "Acme moved to negotiation",
-            "Q2 forecast refreshed",
-            "Team report is ready",
+            `${selectedTicker} forecast refreshed`,
+            "Industrials M&A screen updated",
+            "Customer concentration model ready",
           ].map((item) => (
             <button
               key={item}
               onClick={() => {
                 if (item.includes("forecast")) onSectionChange("forecasting");
-                if (item.includes("report")) onSectionChange("reports");
-                if (item.includes("Acme")) onSectionChange("deals");
+                if (item.includes("M&A")) onSectionChange("deals");
+                if (item.includes("Customer")) onSectionChange("customers");
                 setNotificationsOpen(false);
               }}
               className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-secondary"

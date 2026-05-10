@@ -5,6 +5,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
+    "edgar:generate": "node scripts/generate-edgar-financials.mjs",
     "lint": "eslint .",
     "start": "next start"
   },

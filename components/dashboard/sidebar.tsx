@@ -6,16 +6,13 @@ import { cn } from "@/lib/utils";
 import type { Section } from "@/app/page";
 import {
   LayoutDashboard,
-  GitBranch,
   Handshake,
-  Users,
-  BarChart3,
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
   Building2,
   TrendingUp,
-  Settings,
+  BadgeDollarSign,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -29,13 +26,10 @@ interface SidebarProps {
 
 const navItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "pipeline", label: "Pipeline", icon: GitBranch },
+  { id: "pipeline", label: "Sales", icon: BadgeDollarSign },
   { id: "deals", label: "Deals", icon: Handshake },
   { id: "customers", label: "Customers", icon: Building2 },
-  { id: "team", label: "Team", icon: Users },
   { id: "forecasting", label: "Forecasting", icon: TrendingUp },
-  { id: "reports", label: "Reports", icon: BarChart3 },
-  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export function Sidebar({
@@ -89,7 +83,7 @@ export function Sidebar({
         aria-label="Resize sidebar"
         onMouseDown={beginResize}
         title="Drag to resize sidebar"
-        className="absolute -right-2 top-20 z-40 h-[calc(100vh-112px)] w-4 cursor-col-resize rounded-full after:absolute after:left-1/2 after:top-0 after:h-full after:w-px after:-translate-x-1/2 after:bg-transparent hover:after:bg-accent/60"
+        className="absolute -right-2 top-20 z-40 h-[calc(100vh-160px)] w-4 cursor-col-resize rounded-full after:absolute after:left-1/2 after:top-0 after:h-full after:w-px after:-translate-x-1/2 after:bg-transparent hover:after:bg-accent/60"
       />
       <button
         type="button"
@@ -112,7 +106,7 @@ export function Sidebar({
               compact ? "opacity-0 w-0 overflow-hidden" : "opacity-100 w-auto"
             )}
           >
-            SalesOps
+            Industrials
           </span>
         </div>
       </div>

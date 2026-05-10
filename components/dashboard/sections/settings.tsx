@@ -32,51 +32,16 @@ import {
   ExternalLink,
   Zap,
 } from "lucide-react";
+import { financeApiProviders } from "@/lib/industrials-data";
 
-const initialIntegrations = [
-  {
-    id: "salesforce",
-    name: "Salesforce",
-    description: "Sync contacts and opportunities",
-    connected: true,
-    lastSync: "2 hours ago",
-  },
-  {
-    id: "hubspot",
-    name: "HubSpot",
-    description: "Marketing automation and CRM",
-    connected: true,
-    lastSync: "5 mins ago",
-  },
-  {
-    id: "slack",
-    name: "Slack",
-    description: "Team notifications and alerts",
-    connected: true,
-    lastSync: "Real-time",
-  },
-  {
-    id: "gmail",
-    name: "Gmail",
-    description: "Email tracking and sync",
-    connected: false,
-    lastSync: null,
-  },
-  {
-    id: "calendar",
-    name: "Google Calendar",
-    description: "Meeting scheduling",
-    connected: false,
-    lastSync: null,
-  },
-  {
-    id: "zoom",
-    name: "Zoom",
-    description: "Video conferencing integration",
-    connected: true,
-    lastSync: "1 hour ago",
-  },
-];
+const initialIntegrations = financeApiProviders.map((provider, index) => ({
+  id: provider.env.toLowerCase(),
+  name: provider.name,
+  env: provider.env,
+  description: provider.bestFor,
+  connected: true,
+  lastSync: index < 2 ? "Used for projections and company data" : "Available as a backup provider",
+}));
 
 const notificationSettings = [
   {
@@ -87,16 +52,16 @@ const notificationSettings = [
     push: true,
   },
   {
-    id: "team_activity",
-    label: "Team Activity",
-    description: "Updates on team performance and milestones",
+    id: "market_activity",
+    label: "Market Activity",
+    description: "Updates on top industrial stock movements",
     email: true,
     push: false,
   },
   {
     id: "pipeline_alerts",
-    label: "Pipeline Alerts",
-    description: "Alerts for pipeline changes and risks",
+    label: "Sales Alerts",
+    description: "Alerts for account thesis changes and risks",
     email: true,
     push: true,
   },
@@ -143,7 +108,7 @@ export function SettingsSection() {
       <div>
         <h2 className="text-xl font-semibold text-foreground">Settings</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Manage your account preferences and integrations
+          Manage your account preferences and financial data integrations
         </p>
       </div>
       <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
@@ -390,10 +355,23 @@ export function SettingsSection() {
         <TabsContent value="integrations" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
           <Card className="border-border bg-card">
             <CardHeader>
-              <CardTitle className="text-base font-medium">Connected Services</CardTitle>
-              <CardDescription>Manage your third-party integrations</CardDescription>
+              <CardTitle className="text-base font-medium">Financial Data Providers</CardTitle>
+              <CardDescription>
+                API keys stay in server-only environment variables and are never displayed in the app.
+              </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-4 rounded-lg border border-border bg-secondary/40 p-4">
+                <div className="flex items-start gap-3">
+                  <Key className="mt-0.5 h-5 w-5 text-accent" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Confidential key handling</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Paste real keys into <span className="font-mono text-foreground">.env.local</span> using the names from <span className="font-mono text-foreground">.env.example</span>. Do not add <span className="font-mono text-foreground">NEXT_PUBLIC_</span>; that would expose the key in browser code.
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {integrations.map((integration, index) => (
                   <div
@@ -421,6 +399,7 @@ export function SettingsSection() {
                         <div>
                           <p className="font-medium text-foreground">{integration.name}</p>
                           <p className="text-sm text-muted-foreground">{integration.description}</p>
+                          <p className="mt-1 font-mono text-xs text-muted-foreground">{integration.env}</p>
                         </div>
                       </div>
                       <Badge
@@ -430,21 +409,21 @@ export function SettingsSection() {
                             : "bg-muted text-muted-foreground border-border"
                         }
                       >
-                        {integration.connected ? "Connected" : "Not connected"}
+                        {integration.connected ? "Server env" : "Not configured"}
                       </Badge>
                     </div>
                     <div className="mt-4 flex items-center justify-between">
                       {integration.connected ? (
                         <>
                           <span className="text-xs text-muted-foreground">
-                            Last sync: {integration.lastSync}
+                            {integration.lastSync}
                           </span>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               className="h-8"
-                              onClick={() => setStatusMessage(`${integration.name} synced.`)}
+                              onClick={() => setStatusMessage(`${integration.name} data refresh queued. Key value remains hidden.`)}
                             >
                               <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                               Sync
@@ -457,20 +436,20 @@ export function SettingsSection() {
                                 setIntegrations((current) =>
                                   current.map((item) =>
                                     item.id === integration.id
-                                      ? { ...item, connected: false, lastSync: null }
+                                      ? { ...item, connected: false, lastSync: "Disabled for projections" }
                                       : item
                                   )
                                 );
-                                setStatusMessage(`${integration.name} disconnected.`);
+                                setStatusMessage(`${integration.name} disabled for projections.`);
                               }}
                             >
-                              Disconnect
+                              Disable
                             </Button>
                           </div>
                         </>
                       ) : (
                         <>
-                          <span className="text-xs text-muted-foreground">Not configured</span>
+                          <span className="text-xs text-muted-foreground">Disabled for projections</span>
                           <Button
                             size="sm"
                             className="h-8 bg-accent hover:bg-accent/90 text-accent-foreground"
@@ -482,7 +461,7 @@ export function SettingsSection() {
                                     : item
                                 )
                               );
-                              setStatusMessage(`${integration.name} connected.`);
+                              setStatusMessage(`${integration.name} enabled. Add the real key in .env.local if needed.`);
                             }}
                           >
                             Connect

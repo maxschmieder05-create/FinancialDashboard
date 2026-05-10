@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 
 const stages = [
-  { name: "Lead", value: 45, count: 892, color: "bg-chart-1" },
-  { name: "Qualified", value: 28, count: 556, color: "bg-chart-2" },
-  { name: "Proposal", value: 18, count: 357, color: "bg-chart-3" },
-  { name: "Negotiation", value: 9, count: 179, color: "bg-accent" },
+  { name: "Core clients", value: 38, count: 5, color: "bg-chart-1" },
+  { name: "Expansion", value: 27, count: 4, color: "bg-chart-2" },
+  { name: "Future pools", value: 22, count: 3, color: "bg-chart-3" },
+  { name: "M&A watch", value: 13, count: 5, color: "bg-accent" },
 ];
 
 export function PipelineOverview() {
@@ -20,8 +20,8 @@ export function PipelineOverview() {
   return (
     <div className="bg-card border border-border rounded-xl p-5 h-[380px] animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
       <div className="mb-6">
-        <h3 className="text-base font-semibold text-foreground">Pipeline Stages</h3>
-        <p className="text-sm text-muted-foreground mt-0.5">Distribution by stage</p>
+        <h3 className="text-base font-semibold text-foreground">Sales Stages</h3>
+        <p className="text-sm text-muted-foreground mt-0.5">Distribution by account thesis</p>
       </div>
 
       <div className="space-y-5">
@@ -47,11 +47,10 @@ export function PipelineOverview() {
         ))}
       </div>
 
-      {/* Total pipeline value */}
       <div className="mt-6 pt-5 border-t border-border">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Total Pipeline Value</span>
-          <span className="text-xl font-bold text-foreground">$4.8M</span>
+          <span className="text-sm text-muted-foreground">Modeled Sales Value</span>
+          <span className="text-xl font-bold text-foreground">$48.0B</span>
         </div>
       </div>
     </div>

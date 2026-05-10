@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === "production"
+const staticExport = process.env.STATIC_EXPORT === "true"
 
 const nextConfig = {
-  output: "export",
+  output: staticExport ? "export" : undefined,
   trailingSlash: true,
-  basePath: isProd ? "/FinancialDashboard" : "",
+  basePath: isProd && staticExport ? "/FinancialDashboard" : "",
   typescript: {
     ignoreBuildErrors: true,
   },

@@ -39,13 +39,13 @@ export function MetricCard({
           </div>
         </div>
 
-        <div className="flex items-end gap-3">
-          <span className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight">
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <span className="min-w-0 text-2xl lg:text-3xl font-bold text-foreground tracking-normal">
             {value}
           </span>
           <div
             className={cn(
-              "flex items-center gap-1 text-sm font-medium mb-1",
+              "flex min-w-0 items-center gap-1 text-sm font-medium mb-1",
               changeType === "positive" && "text-success",
               changeType === "negative" && "text-destructive",
               changeType === "neutral" && "text-muted-foreground"
@@ -55,7 +55,7 @@ export function MetricCard({
             {changeType === "negative" && (
               <TrendingDown className="w-3.5 h-3.5" />
             )}
-            <span>{change}</span>
+            <span className="break-words">{change}</span>
           </div>
         </div>
       </div>

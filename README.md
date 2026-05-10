@@ -1,4 +1,4 @@
-# v0-salesops-dashboard
+# Industrials Finance Dashboard
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
 
@@ -23,6 +23,26 @@ pnpm dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+## Finance API keys
+
+Use `.env.example` as the safe template:
+
+```bash
+cp .env.example .env.local
+```
+
+Paste real keys only into `.env.local`. The file is ignored by git, so it stays local and should not be committed.
+
+Keep the finance credentials server-only:
+
+- Use `FINNHUB_API_KEY` for the free primary live quote and forecast feed.
+- Use `ALPHA_VANTAGE_API_KEY` as the free fallback.
+- Use `FACTSET_USERNAME_SERIAL` and `FACTSET_API_KEY` only if your FactSet account gets the needed entitlements.
+- Do not prefix these with `NEXT_PUBLIC_`.
+- Never paste real keys into React components, client-side code, screenshots, or committed files.
+
+The dashboard is structured around confidential API-backed projections and market data, with curated fallback data available while keys are missing.
 
 ## Learn More
 

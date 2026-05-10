@@ -7,38 +7,43 @@ import { OverviewSection } from "@/components/dashboard/sections/overview";
 import { PipelineSection } from "@/components/dashboard/sections/pipeline";
 import { DealsSection } from "@/components/dashboard/sections/deals";
 import { CustomersSection } from "@/components/dashboard/sections/customers";
-import { TeamSection } from "@/components/dashboard/sections/team";
 import { ForecastingSection } from "@/components/dashboard/sections/forecasting";
-import { ReportsSection } from "@/components/dashboard/sections/reports";
-import { SettingsSection } from "@/components/dashboard/sections/settings";
+import { topIndustrialCompanies } from "@/lib/industrials-data";
 
-export type Section = "overview" | "pipeline" | "deals" | "customers" | "team" | "forecasting" | "reports" | "settings";
+export type Section = "overview" | "pipeline" | "deals" | "customers" | "forecasting";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<Section>("overview");
+  const [selectedTicker, setSelectedTicker] = useState(topIndustrialCompanies[0].ticker);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(260);
 
   const renderSection = () => {
     switch (activeSection) {
       case "overview":
-        return <OverviewSection onSectionChange={setActiveSection} />;
+        return (
+          <OverviewSection
+            selectedTicker={selectedTicker}
+            onTickerChange={setSelectedTicker}
+            onSectionChange={setActiveSection}
+          />
+        );
       case "pipeline":
-        return <PipelineSection />;
+        return <PipelineSection selectedTicker={selectedTicker} onTickerChange={setSelectedTicker} />;
       case "deals":
-        return <DealsSection />;
+        return <DealsSection selectedTicker={selectedTicker} onTickerChange={setSelectedTicker} />;
       case "customers":
-        return <CustomersSection />;
-      case "team":
-        return <TeamSection />;
+        return <CustomersSection selectedTicker={selectedTicker} onTickerChange={setSelectedTicker} />;
       case "forecasting":
-        return <ForecastingSection />;
-      case "reports":
-        return <ReportsSection />;
-      case "settings":
-        return <SettingsSection />;
+        return <ForecastingSection selectedTicker={selectedTicker} onTickerChange={setSelectedTicker} />;
       default:
-        return <OverviewSection />;
+        return (
+          <OverviewSection
+            selectedTicker={selectedTicker}
+            onTickerChange={setSelectedTicker}
+            onSectionChange={setActiveSection}
+          />
+        );
     }
   };
 
@@ -56,7 +61,12 @@ export default function Dashboard() {
         className="flex-1 flex flex-col transition-[margin-left] duration-300 ease-out"
         style={{ marginLeft: sidebarCollapsed ? 72 : sidebarWidth }}
       >
-        <Header activeSection={activeSection} onSectionChange={setActiveSection} />
+        <Header
+          activeSection={activeSection}
+          selectedTicker={selectedTicker}
+          onTickerChange={setSelectedTicker}
+          onSectionChange={setActiveSection}
+        />
         <main className="flex-1 p-6 overflow-auto">
           <div
             key={activeSection}
