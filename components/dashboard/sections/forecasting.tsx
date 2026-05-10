@@ -276,7 +276,7 @@ export function ForecastingSection({
                 />
                 <Legend wrapperStyle={{ fontSize: "12px" }} formatter={(value) => <span style={{ color: "oklch(0.65 0 0)" }}>{value}</span>} />
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey={view === "stock" ? "stockPrice" : view === "customers" ? "customers" : "revenue"}
                   name={view === "stock" ? "Stock price" : view === "customers" ? "Customer pools" : "Revenue"}
                   stroke="oklch(0.7 0.18 145)"

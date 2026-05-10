@@ -8,9 +8,10 @@ import { PipelineSection } from "@/components/dashboard/sections/pipeline";
 import { DealsSection } from "@/components/dashboard/sections/deals";
 import { CustomersSection } from "@/components/dashboard/sections/customers";
 import { ForecastingSection } from "@/components/dashboard/sections/forecasting";
+import { NewsSection } from "@/components/dashboard/sections/news";
 import { topIndustrialCompanies } from "@/lib/industrials-data";
 
-export type Section = "overview" | "pipeline" | "deals" | "customers" | "forecasting";
+export type Section = "overview" | "pipeline" | "deals" | "customers" | "forecasting" | "news";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<Section>("overview");
@@ -36,6 +37,8 @@ export default function Dashboard() {
         return <CustomersSection selectedTicker={selectedTicker} onTickerChange={setSelectedTicker} />;
       case "forecasting":
         return <ForecastingSection selectedTicker={selectedTicker} onTickerChange={setSelectedTicker} />;
+      case "news":
+        return <NewsSection />;
       default:
         return (
           <OverviewSection

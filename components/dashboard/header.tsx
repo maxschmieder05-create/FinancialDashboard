@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Section } from "@/app/page";
-import { Bell, Calendar, Search, Settings, X } from "lucide-react";
+import { Bell, Search, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { CompanySelector } from "@/components/dashboard/company-selector";
 import { topIndustrialCompanies } from "@/lib/industrials-data";
@@ -20,10 +20,11 @@ const sectionTitles: Record<Section, string> = {
   deals: "Deals",
   customers: "Customers",
   forecasting: "Forecasting",
+  news: "News",
 };
 
 const quickResults: { label: string; section: Section; detail: string }[] = [
-  ...topIndustrialCompanies.slice(0, 8).map((company) => ({
+  ...topIndustrialCompanies.map((company) => ({
     label: `${company.ticker} ${company.name}`,
     section: "overview" as Section,
     detail: company.industry,
@@ -31,6 +32,7 @@ const quickResults: { label: string; section: Section; detail: string }[] = [
   { label: "Industrials M&A", section: "deals", detail: "Recent sector transactions" },
   { label: "Revenue Forecast", section: "forecasting", detail: "Company revenue and price outlook" },
   { label: "Top Clients", section: "customers", detail: "Customer concentration by company" },
+  { label: "Industrials News", section: "news", detail: "Daily tracked-company headlines" },
 ];
 
 export function Header({ activeSection, selectedTicker, onTickerChange, onSectionChange }: HeaderProps) {
@@ -38,9 +40,36 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const filteredResults = quickResults.filter((result) =>
-    result.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredResults = quickResults
+    .filter((result) => result.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    .slice(0, 8);
+
+  const chooseResult = (result: { label: string; section: Section }) => {
+    onSectionChange(result.section);
+    const ticker = topIndustrialCompanies.find((company) =>
+      result.label.startsWith(`${company.ticker} `)
+    )?.ticker;
+    if (ticker) onTickerChange(ticker);
+    setSearchQuery("");
+    setSearchFocused(false);
+  };
+
+  const chooseBestSearchResult = () => {
+    const query = searchQuery.trim().toLowerCase();
+    const exactCompany = topIndustrialCompanies.find(
+      (company) => company.ticker.toLowerCase() === query || company.name.toLowerCase() === query
+    );
+
+    if (exactCompany) {
+      onTickerChange(exactCompany.ticker);
+      onSectionChange("overview");
+      setSearchQuery("");
+      setSearchFocused(false);
+      return;
+    }
+
+    if (filteredResults[0]) chooseResult(filteredResults[0]);
+  };
 
   return (
     <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
@@ -48,10 +77,6 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
         <h1 className="text-xl font-semibold text-foreground">
           {sectionTitles[activeSection]}
         </h1>
-        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          <span>Top 25 industrials</span>
-        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -74,14 +99,7 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
             onFocus={() => setSearchFocused(true)}
             onBlur={() => window.setTimeout(() => setSearchFocused(false), 120)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && filteredResults[0]) {
-                onSectionChange(filteredResults[0].section);
-                const ticker = topIndustrialCompanies.find((company) =>
-                  filteredResults[0].label.startsWith(company.ticker)
-                )?.ticker;
-                if (ticker) onTickerChange(ticker);
-                setSearchQuery("");
-              }
+              if (event.key === "Enter") chooseBestSearchResult();
             }}
             className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
           />
@@ -91,14 +109,7 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
                 filteredResults.map((result) => (
                   <button
                     key={result.label}
-                    onMouseDown={() => {
-                      onSectionChange(result.section);
-                      const ticker = topIndustrialCompanies.find((company) =>
-                        result.label.startsWith(company.ticker)
-                      )?.ticker;
-                      if (ticker) onTickerChange(ticker);
-                      setSearchQuery("");
-                    }}
+                    onMouseDown={() => chooseResult(result)}
                     className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors"
                   >
                     <span className="block text-sm font-medium text-foreground">{result.label}</span>

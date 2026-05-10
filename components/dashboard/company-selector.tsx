@@ -20,7 +20,7 @@ export function CompanySelector({
 }) {
   return (
     <Select value={selectedTicker} onValueChange={onTickerChange}>
-      <SelectTrigger className={compact ? "w-[132px] bg-secondary border-border" : "w-full sm:w-[280px] bg-secondary border-border"}>
+      <SelectTrigger className={compact ? "w-[160px] bg-secondary border-border" : "w-full sm:w-[280px] bg-secondary border-border"}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent className="max-h-[360px]">

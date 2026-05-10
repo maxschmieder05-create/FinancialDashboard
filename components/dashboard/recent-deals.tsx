@@ -51,8 +51,11 @@ export function RecentDeals({ onViewAll }: { onViewAll: () => void }) {
           const StatusIcon = status.icon;
 
           return (
-            <div
+            <a
               key={deal.id}
+              href={deal.articleUrl}
+              target="_blank"
+              rel="noreferrer"
               className="group flex items-center justify-between p-3 rounded-lg hover:bg-secondary/50 transition-all duration-200 cursor-pointer animate-in fade-in slide-in-from-left-2"
               style={{ animationDelay: `${(index + 3) * 100}ms`, animationFillMode: "both" }}
             >
@@ -73,7 +76,7 @@ export function RecentDeals({ onViewAll }: { onViewAll: () => void }) {
                   {status.label}
                 </div>
               </div>
-            </div>
+            </a>
           );
         })}
       </div>

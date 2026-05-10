@@ -6,6 +6,7 @@ const nextConfig = {
   output: staticExport ? "export" : undefined,
   trailingSlash: true,
   basePath: isProd && staticExport ? "/FinancialDashboard" : "",
+  devIndicators: false,
   typescript: {
     ignoreBuildErrors: true,
   },

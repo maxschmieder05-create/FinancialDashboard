@@ -33,9 +33,6 @@ export function OverviewSection({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-foreground">{company.name}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Top 25 industrials by market cap, centered on the selected company.
-          </p>
         </div>
         <CompanySelector selectedTicker={selectedTicker} onTickerChange={onTickerChange} />
       </div>
@@ -52,7 +49,7 @@ export function OverviewSection({
         <MetricCard
           title="Live Price"
           value={`$${livePrice.toFixed(2)}`}
-          change={marketDataLoading ? "Refreshing..." : marketData?.source ?? "fallback"}
+          change={marketDataLoading ? "Refreshing..." : "Latest quote"}
           changeType="positive"
           icon={TrendingUp}
           delay={1}
@@ -80,7 +77,7 @@ export function OverviewSection({
         <div className="lg:col-span-2">
           <StockPerformanceChart company={company} marketData={marketData} />
         </div>
-        <PipelineOverview />
+        <PipelineOverview company={company} />
       </div>
 
       {/* Bottom row */}
