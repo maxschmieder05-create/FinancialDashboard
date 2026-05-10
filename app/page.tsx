@@ -17,6 +17,7 @@ export type Section = "overview" | "pipeline" | "deals" | "customers" | "team" |
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<Section>("overview");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(260);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -48,11 +49,12 @@ export default function Dashboard() {
         onSectionChange={setActiveSection}
         collapsed={sidebarCollapsed}
         onCollapsedChange={setSidebarCollapsed}
+        width={sidebarWidth}
+        onWidthChange={setSidebarWidth}
       />
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ease-out ${
-          sidebarCollapsed ? "ml-[72px]" : "ml-[260px]"
-        }`}
+        className="flex-1 flex flex-col transition-[margin-left] duration-300 ease-out"
+        style={{ marginLeft: sidebarCollapsed ? 72 : sidebarWidth }}
       >
         <Header activeSection={activeSection} onSectionChange={setActiveSection} />
         <main className="flex-1 p-6 overflow-auto">
