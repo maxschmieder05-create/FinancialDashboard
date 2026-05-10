@@ -21,7 +21,7 @@ export default function Dashboard() {
   const renderSection = () => {
     switch (activeSection) {
       case "overview":
-        return <OverviewSection />;
+        return <OverviewSection onSectionChange={setActiveSection} />;
       case "pipeline":
         return <PipelineSection />;
       case "deals":
@@ -54,7 +54,7 @@ export default function Dashboard() {
           sidebarCollapsed ? "ml-[72px]" : "ml-[260px]"
         }`}
       >
-        <Header activeSection={activeSection} />
+        <Header activeSection={activeSection} onSectionChange={setActiveSection} />
         <main className="flex-1 p-6 overflow-auto">
           <div
             key={activeSection}

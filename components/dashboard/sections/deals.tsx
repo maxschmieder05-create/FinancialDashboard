@@ -45,14 +45,35 @@ const statusConfig = {
 export function DealsSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [stageFilter, setStageFilter] = useState<string>("all");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [sortKey, setSortKey] = useState<"company" | "value">("value");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const pageSize = 5;
 
   const filteredDeals = deals.filter((deal) => {
     const matchesSearch =
       deal.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
       deal.contact.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = selectedFilter === "all" || deal.status === selectedFilter;
-    return matchesSearch && matchesFilter;
+    const matchesStage = stageFilter === "all" || deal.stage === stageFilter;
+    return matchesSearch && matchesFilter && matchesStage;
+  }).sort((a, b) => {
+    const direction = sortDirection === "asc" ? 1 : -1;
+    if (sortKey === "company") return a.company.localeCompare(b.company) * direction;
+    return (a.value - b.value) * direction;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredDeals.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const visibleDeals = filteredDeals.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const toggleSort = (key: "company" | "value") => {
+    setSortDirection(sortKey === key && sortDirection === "desc" ? "asc" : "desc");
+    setSortKey(key);
+  };
 
   return (
     <div className="space-y-6">
@@ -91,12 +112,38 @@ export function DealsSection() {
             ))}
           </div>
         </div>
-        <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+        <button
+          onClick={() => setShowAdvancedFilters((visible) => !visible)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+        >
           <Filter className="w-4 h-4" />
           More filters
-          <ChevronDown className="w-3 h-3" />
+          <ChevronDown className={cn("w-3 h-3 transition-transform", showAdvancedFilters && "rotate-180")} />
         </button>
       </div>
+
+      {showAdvancedFilters && (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3 animate-in fade-in slide-in-from-top-2">
+          <span className="text-xs font-medium text-muted-foreground">Stage</span>
+          {["all", "Lead", "Qualified", "Proposal", "Negotiation"].map((stage) => (
+            <button
+              key={stage}
+              onClick={() => {
+                setStageFilter(stage);
+                setPage(1);
+              }}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                stageFilter === stage
+                  ? "bg-accent text-accent-foreground"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {stage === "all" ? "All stages" : stage}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -105,14 +152,20 @@ export function DealsSection() {
             <thead>
               <tr className="border-b border-border bg-secondary/50">
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <button className="flex items-center gap-1 hover:text-foreground transition-colors">
+                  <button
+                    onClick={() => toggleSort("company")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
                     Company
                     <ArrowUpDown className="w-3 h-3" />
                   </button>
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contact</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  <button className="flex items-center gap-1 hover:text-foreground transition-colors">
+                  <button
+                    onClick={() => toggleSort("value")}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  >
                     Value
                     <ArrowUpDown className="w-3 h-3" />
                   </button>
@@ -125,13 +178,14 @@ export function DealsSection() {
               </tr>
             </thead>
             <tbody>
-              {filteredDeals.map((deal, index) => {
+              {visibleDeals.map((deal, index) => {
                 const status = statusConfig[deal.status];
                 const StatusIcon = status.icon;
 
                 return (
                   <tr
                     key={deal.id}
+                    onClick={() => setSelectedDeal(deal)}
                     className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors duration-150 cursor-pointer animate-in fade-in slide-in-from-left-2"
                     style={{ animationDelay: `${index * 50}ms`, animationFillMode: "both" }}
                   >
@@ -172,7 +226,13 @@ export function DealsSection() {
                       <span className="text-sm text-muted-foreground">{deal.closeDate}</span>
                     </td>
                     <td className="py-4 px-4">
-                      <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                      <button
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelectedDeal(deal);
+                        }}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
+                      >
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </td>
@@ -186,24 +246,77 @@ export function DealsSection() {
         {/* Pagination */}
         <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/30">
           <span className="text-sm text-muted-foreground">
-            Showing {filteredDeals.length} of {deals.length} deals
+            Showing {visibleDeals.length} of {filteredDeals.length} deals
           </span>
           <div className="flex items-center gap-2">
-            <button className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200">
+            <button
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200 disabled:opacity-40"
+            >
               Previous
             </button>
-            <button className="px-3 py-1.5 rounded-lg text-sm bg-accent text-accent-foreground font-medium">
-              1
-            </button>
-            <button className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200">
-              2
-            </button>
-            <button className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200">
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+              <button
+                key={pageNumber}
+                onClick={() => setPage(pageNumber)}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-sm transition-colors duration-200",
+                  currentPage === pageNumber
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                )}
+              >
+                {pageNumber}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200 disabled:opacity-40"
+            >
               Next
             </button>
           </div>
         </div>
       </div>
+
+      {selectedDeal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">{selectedDeal.company}</h3>
+                <p className="text-sm text-muted-foreground">{selectedDeal.contact} • {selectedDeal.email}</p>
+              </div>
+              <button
+                onClick={() => setSelectedDeal(null)}
+                className="rounded-lg px-2 py-1 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                Close
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-lg bg-secondary p-3">
+                <p className="text-muted-foreground">Value</p>
+                <p className="font-semibold text-foreground">${selectedDeal.value.toLocaleString()}</p>
+              </div>
+              <div className="rounded-lg bg-secondary p-3">
+                <p className="text-muted-foreground">Stage</p>
+                <p className="font-semibold text-foreground">{selectedDeal.stage}</p>
+              </div>
+              <div className="rounded-lg bg-secondary p-3">
+                <p className="text-muted-foreground">Owner</p>
+                <p className="font-semibold text-foreground">{selectedDeal.rep}</p>
+              </div>
+              <div className="rounded-lg bg-secondary p-3">
+                <p className="text-muted-foreground">Close date</p>
+                <p className="font-semibold text-foreground">{selectedDeal.closeDate}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

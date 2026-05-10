@@ -94,6 +94,8 @@ const scenarios = [
 export function ForecastingSection() {
   const [timeframe, setTimeframe] = useState("quarterly");
   const [isLoading, setIsLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState("Initial model run");
+  const [expandedRiskId, setExpandedRiskId] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
@@ -126,11 +128,26 @@ export function ForecastingSection() {
               <SelectItem value="annual">Annual</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setIsLoading(true);
+              setLastRefresh("Refreshing forecast...");
+              window.setTimeout(() => {
+                setIsLoading(false);
+                setLastRefresh(`Updated ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`);
+              }, 650);
+            }}
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
         </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+        {timeframe.charAt(0).toUpperCase() + timeframe.slice(1)} view • {lastRefresh}
       </div>
 
       {/* KPI Summary */}
@@ -443,12 +460,20 @@ export function ForecastingSection() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() =>
+                      setExpandedRiskId((current) => (current === risk.id ? null : risk.id))
+                    }
                     className="text-xs text-muted-foreground hover:text-foreground p-0 h-auto"
                   >
                     View mitigation plan
                     <ArrowRight className="w-3 h-3 ml-1" />
                   </Button>
                 </div>
+                {expandedRiskId === risk.id && (
+                  <div className="ml-5 mt-3 rounded-lg border border-border bg-card p-3 text-sm text-muted-foreground">
+                    Assign owner, confirm close plan this week, and move flagged deals into manager review.
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -42,7 +42,15 @@ const performanceData = [
   { name: "Lisa", revenue: 267, quota: 300 },
 ];
 
-function TeamMemberCard({ member, index }: { member: TeamMember; index: number }) {
+function TeamMemberCard({
+  member,
+  index,
+  onAction,
+}: {
+  member: TeamMember;
+  index: number;
+  onAction: (message: string) => void;
+}) {
   const quotaPercentage = (member.revenue / member.quota) * 100;
   const isAboveQuota = quotaPercentage >= 100;
 
@@ -68,7 +76,10 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
             <p className="text-xs text-muted-foreground">{member.role}</p>
           </div>
         </div>
-        <button className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 transition-all duration-200">
+        <button
+          onClick={() => onAction(`${member.name}'s performance notes are open.`)}
+          className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary opacity-0 group-hover:opacity-100 transition-all duration-200"
+        >
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
@@ -104,10 +115,16 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
       {/* Change indicator */}
       <div className="flex items-center justify-between pt-4 border-t border-border">
         <div className="flex items-center gap-2">
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors">
+          <button
+            onClick={() => onAction(`Email draft ready for ${member.email}.`)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
+          >
             <Mail className="w-4 h-4" />
           </button>
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors">
+          <button
+            onClick={() => onAction(`Call task created for ${member.name}.`)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors"
+          >
             <Phone className="w-4 h-4" />
           </button>
         </div>
@@ -122,6 +139,7 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
 
 export function TeamSection() {
   const [chartLoaded, setChartLoaded] = useState(false);
+  const [activityMessage, setActivityMessage] = useState("Use the contact buttons to create follow-up activity.");
 
   useEffect(() => {
     const timer = setTimeout(() => setChartLoaded(true), 400);
@@ -222,9 +240,17 @@ export function TeamSection() {
       {/* Team members grid */}
       <div>
         <h3 className="text-base font-semibold text-foreground mb-4">Team Members</h3>
+        <div className="mb-4 rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+          {activityMessage}
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teamMembers.map((member, index) => (
-            <TeamMemberCard key={member.id} member={member} index={index} />
+            <TeamMemberCard
+              key={member.id}
+              member={member}
+              index={index}
+              onAction={setActivityMessage}
+            />
           ))}
         </div>
       </div>

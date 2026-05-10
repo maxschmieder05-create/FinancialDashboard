@@ -33,7 +33,7 @@ import {
   Zap,
 } from "lucide-react";
 
-const integrations = [
+const initialIntegrations = [
   {
     id: "salesforce",
     name: "Salesforce",
@@ -119,11 +119,17 @@ const notificationSettings = [
 export function SettingsSection() {
   const [activeTab, setActiveTab] = useState("profile");
   const [notifications, setNotifications] = useState(notificationSettings);
+  const [integrations, setIntegrations] = useState(initialIntegrations);
   const [isSaving, setIsSaving] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Settings are ready.");
 
   const handleSave = () => {
     setIsSaving(true);
-    setTimeout(() => setIsSaving(false), 1500);
+    setStatusMessage("Saving changes...");
+    setTimeout(() => {
+      setIsSaving(false);
+      setStatusMessage("Changes saved.");
+    }, 900);
   };
 
   const toggleNotification = (id: string, type: "email" | "push") => {
@@ -139,6 +145,9 @@ export function SettingsSection() {
         <p className="text-sm text-muted-foreground mt-1">
           Manage your account preferences and integrations
         </p>
+      </div>
+      <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+        {statusMessage}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -188,7 +197,11 @@ export function SettingsSection() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStatusMessage("Avatar picker opened.")}
+                  >
                     Change Avatar
                   </Button>
                   <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max 2MB.</p>
@@ -427,11 +440,30 @@ export function SettingsSection() {
                             Last sync: {integration.lastSync}
                           </span>
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="h-8">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8"
+                              onClick={() => setStatusMessage(`${integration.name} synced.`)}
+                            >
                               <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                               Sync
                             </Button>
-                            <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 text-destructive hover:text-destructive"
+                              onClick={() => {
+                                setIntegrations((current) =>
+                                  current.map((item) =>
+                                    item.id === integration.id
+                                      ? { ...item, connected: false, lastSync: null }
+                                      : item
+                                  )
+                                );
+                                setStatusMessage(`${integration.name} disconnected.`);
+                              }}
+                            >
                               Disconnect
                             </Button>
                           </div>
@@ -442,6 +474,16 @@ export function SettingsSection() {
                           <Button
                             size="sm"
                             className="h-8 bg-accent hover:bg-accent/90 text-accent-foreground"
+                            onClick={() => {
+                              setIntegrations((current) =>
+                                current.map((item) =>
+                                  item.id === integration.id
+                                    ? { ...item, connected: true, lastSync: "Just now" }
+                                    : item
+                                )
+                              );
+                              setStatusMessage(`${integration.name} connected.`);
+                            }}
                           >
                             Connect
                             <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
@@ -489,7 +531,12 @@ export function SettingsSection() {
                     className="bg-secondary border-border focus:border-accent max-w-md"
                   />
                 </div>
-                <Button variant="outline">Update Password</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setStatusMessage("Password update request submitted.")}
+                >
+                  Update Password
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -514,7 +561,11 @@ export function SettingsSection() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Badge className="bg-accent/20 text-accent border-accent/30">Enabled</Badge>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStatusMessage("Two-factor authentication manager opened.")}
+                  >
                     Manage
                   </Button>
                 </div>
@@ -558,7 +609,12 @@ export function SettingsSection() {
                       </div>
                     </div>
                     {!session.current && (
-                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setStatusMessage(`${session.device} session revoked.`)}
+                      >
                         Revoke
                       </Button>
                     )}

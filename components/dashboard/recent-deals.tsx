@@ -62,7 +62,7 @@ const statusConfig = {
   },
 };
 
-export function RecentDeals() {
+export function RecentDeals({ onViewAll }: { onViewAll: () => void }) {
   return (
     <div className="bg-card border border-border rounded-xl p-5 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
       <div className="flex items-center justify-between mb-5">
@@ -70,7 +70,10 @@ export function RecentDeals() {
           <h3 className="text-base font-semibold text-foreground">Recent Deals</h3>
           <p className="text-sm text-muted-foreground mt-0.5">Latest activity</p>
         </div>
-        <button className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 font-medium transition-colors group">
+        <button
+          onClick={onViewAll}
+          className="flex items-center gap-1 text-sm text-accent hover:text-accent/80 font-medium transition-colors group"
+        >
           View all
           <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </button>

@@ -6,8 +6,13 @@ import { PipelineOverview } from "@/components/dashboard/charts/pipeline-overvie
 import { RecentDeals } from "@/components/dashboard/recent-deals";
 import { TopPerformers } from "@/components/dashboard/top-performers";
 import { DollarSign, TrendingUp, Users, Target } from "lucide-react";
+import type { Section } from "@/app/page";
 
-export function OverviewSection() {
+export function OverviewSection({
+  onSectionChange,
+}: {
+  onSectionChange: (section: Section) => void;
+}) {
   return (
     <div className="space-y-6">
       {/* Metric cards */}
@@ -56,7 +61,7 @@ export function OverviewSection() {
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentDeals />
+        <RecentDeals onViewAll={() => onSectionChange("deals")} />
         <TopPerformers />
       </div>
     </div>

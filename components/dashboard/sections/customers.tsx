@@ -22,7 +22,7 @@ import {
   Filter,
 } from "lucide-react";
 
-const customers = [
+const initialCustomers = [
   {
     id: 1,
     name: "Acme Corporation",
@@ -122,8 +122,10 @@ const tierColors: Record<string, string> = {
 };
 
 export function CustomersSection() {
+  const [customers, setCustomers] = useState(initialCustomers);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [activityMessage, setActivityMessage] = useState("Select a customer action to update the workspace.");
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
@@ -215,10 +217,35 @@ export function CustomersSection() {
             ))}
           </div>
         </div>
-        <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button
+          onClick={() => {
+            const newCustomer = {
+              id: Date.now(),
+              name: "New Customer",
+              industry: "Technology",
+              tier: "Starter",
+              location: "Remote",
+              contact: "New Contact",
+              email: "new.customer@example.com",
+              phone: "+1 (555) 000-0000",
+              totalRevenue: 0,
+              activeDeals: 1,
+              healthScore: 72,
+              trend: "stable",
+              lastContact: "Just now",
+            };
+            setCustomers((current) => [newCustomer, ...current]);
+            setActivityMessage("Created a starter customer record.");
+          }}
+          className="bg-accent hover:bg-accent/90 text-accent-foreground"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Customer
         </Button>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+        {activityMessage}
       </div>
 
       {/* Customer Cards */}
@@ -324,15 +351,29 @@ export function CustomersSection() {
 
               {/* Quick Actions */}
               <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 bg-transparent"
+                  onClick={() => setActivityMessage(`Scheduled a follow-up with ${customer.contact}.`)}
+                >
                   <Calendar className="w-3.5 h-3.5 mr-1.5" />
                   Schedule
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 bg-transparent"
+                  onClick={() => setActivityMessage(`Prepared an email draft for ${customer.email}.`)}
+                >
                   <Mail className="w-3.5 h-3.5 mr-1.5" />
                   Email
                 </Button>
-                <Button variant="ghost" size="sm">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActivityMessage(`Opened ${customer.name}'s account workspace.`)}
+                >
                   <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>

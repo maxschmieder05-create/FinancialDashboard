@@ -61,8 +61,17 @@ const initialStages: Stage[] = [
   },
 ];
 
-function DealCard({ deal, index }: { deal: Deal; index: number }) {
+function DealCard({
+  deal,
+  index,
+  onBoostProbability,
+}: {
+  deal: Deal;
+  index: number;
+  onBoostProbability: () => void;
+}) {
   const [isHovered, setIsHovered] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div
@@ -78,13 +87,28 @@ function DealCard({ deal, index }: { deal: Deal; index: number }) {
           </div>
           <span className="text-sm font-medium text-foreground truncate max-w-[120px]">{deal.company}</span>
         </div>
-        <button className={cn(
+        <button
+          onClick={() => setMenuOpen((open) => !open)}
+          className={cn(
           "w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200",
           isHovered ? "opacity-100" : "opacity-0"
         )}>
           <MoreHorizontal className="w-4 h-4" />
         </button>
       </div>
+      {menuOpen && (
+        <div className="mb-3 rounded-lg border border-border bg-secondary/60 p-2">
+          <button
+            onClick={() => {
+              onBoostProbability();
+              setMenuOpen(false);
+            }}
+            className="w-full rounded-md px-2 py-1.5 text-left text-xs text-foreground hover:bg-card"
+          >
+            Increase probability by 5%
+          </button>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 text-sm text-foreground font-semibold mb-3">
         <DollarSign className="w-3.5 h-3.5 text-accent" />
@@ -120,7 +144,47 @@ function DealCard({ deal, index }: { deal: Deal; index: number }) {
 }
 
 export function PipelineSection() {
-  const [stages] = useState(initialStages);
+  const [stages, setStages] = useState(initialStages);
+
+  const addDeal = (stageId = "lead") => {
+    setStages((currentStages) =>
+      currentStages.map((stage) => {
+        if (stage.id !== stageId) return stage;
+
+        const newDeal: Deal = {
+          id: `${Date.now()}`,
+          company: stageId === "lead" ? "New Opportunity" : `${stage.name} Opportunity`,
+          value: 72000,
+          rep: "JD",
+          daysInStage: 0,
+          probability: stage.id === "lead" ? 20 : stage.id === "qualified" ? 40 : stage.id === "proposal" ? 60 : 75,
+        };
+
+        return {
+          ...stage,
+          deals: [newDeal, ...stage.deals],
+          total: stage.total + newDeal.value,
+        };
+      })
+    );
+  };
+
+  const boostProbability = (stageId: string, dealId: string) => {
+    setStages((currentStages) =>
+      currentStages.map((stage) =>
+        stage.id === stageId
+          ? {
+              ...stage,
+              deals: stage.deals.map((deal) =>
+                deal.id === dealId
+                  ? { ...deal, probability: Math.min(100, deal.probability + 5) }
+                  : deal
+              ),
+            }
+          : stage
+      )
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -129,7 +193,10 @@ export function PipelineSection() {
         <div>
           <p className="text-sm text-muted-foreground">Manage and track your sales pipeline</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors duration-200">
+        <button
+          onClick={() => addDeal()}
+          className="flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg text-sm font-medium hover:bg-accent/90 transition-colors duration-200"
+        >
           <Plus className="w-4 h-4" />
           Add Deal
         </button>
@@ -159,12 +226,20 @@ export function PipelineSection() {
             {/* Deals */}
             <div className="space-y-3">
               {stage.deals.map((deal, dealIndex) => (
-                <DealCard key={deal.id} deal={deal} index={dealIndex} />
+                <DealCard
+                  key={deal.id}
+                  deal={deal}
+                  index={dealIndex}
+                  onBoostProbability={() => boostProbability(stage.id, deal.id)}
+                />
               ))}
             </div>
 
             {/* Add deal to stage */}
-            <button className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-accent/50 hover:bg-secondary/50 transition-all duration-200">
+            <button
+              onClick={() => addDeal(stage.id)}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2 rounded-lg border border-dashed border-border text-sm text-muted-foreground hover:text-foreground hover:border-accent/50 hover:bg-secondary/50 transition-all duration-200"
+            >
               <Plus className="w-4 h-4" />
               Add deal
             </button>

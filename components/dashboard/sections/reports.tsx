@@ -50,7 +50,7 @@ const sourceData = [
   { name: "Social", value: 5, color: "oklch(0.7 0.15 300)" },
 ];
 
-const reports = [
+const initialReports = [
   { id: "1", name: "Monthly Sales Summary", type: "Sales", date: "Jan 20, 2024", status: "ready" },
   { id: "2", name: "Q4 Performance Analysis", type: "Performance", date: "Jan 18, 2024", status: "ready" },
   { id: "3", name: "Pipeline Forecast", type: "Forecast", date: "Jan 15, 2024", status: "ready" },
@@ -64,12 +64,14 @@ function ReportCard({
   icon: Icon,
   color,
   index,
+  onView,
 }: {
   title: string;
   description: string;
   icon: React.ElementType;
   color: string;
   index: number;
+  onView: () => void;
 }) {
   return (
     <div
@@ -81,7 +83,10 @@ function ReportCard({
       </div>
       <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
       <p className="text-xs text-muted-foreground mb-4">{description}</p>
-      <button className="flex items-center gap-1 text-xs text-accent font-medium group-hover:gap-2 transition-all duration-200">
+      <button
+        onClick={onView}
+        className="flex items-center gap-1 text-xs text-accent font-medium group-hover:gap-2 transition-all duration-200"
+      >
         View Report
         <ChevronRight className="w-3 h-3" />
       </button>
@@ -91,11 +96,32 @@ function ReportCard({
 
 export function ReportsSection() {
   const [chartsLoaded, setChartsLoaded] = useState(false);
+  const [reports, setReports] = useState(initialReports);
+  const [activeReport, setActiveReport] = useState("Sales Summary");
 
   useEffect(() => {
     const timer = setTimeout(() => setChartsLoaded(true), 400);
     return () => clearTimeout(timer);
   }, []);
+
+  const downloadReport = (reportName: string) => {
+    const payload = {
+      report: reportName,
+      generatedAt: new Date().toISOString(),
+      metrics: {
+        revenue: "$2.4M",
+        conversionRate: "24.8%",
+        activeDeals: 147,
+      },
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${reportName.toLowerCase().replaceAll(" ", "-")}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="space-y-6">
@@ -107,6 +133,7 @@ export function ReportsSection() {
           icon={BarChart3}
           color="bg-chart-1/10 text-chart-1"
           index={0}
+          onView={() => setActiveReport("Sales Summary")}
         />
         <ReportCard
           title="Conversion Rates"
@@ -114,6 +141,7 @@ export function ReportsSection() {
           icon={TrendingUp}
           color="bg-accent/10 text-accent"
           index={1}
+          onView={() => setActiveReport("Conversion Rates")}
         />
         <ReportCard
           title="Lead Sources"
@@ -121,6 +149,7 @@ export function ReportsSection() {
           icon={PieChartIcon}
           color="bg-chart-3/10 text-chart-3"
           index={2}
+          onView={() => setActiveReport("Lead Sources")}
         />
         <ReportCard
           title="Forecast"
@@ -128,7 +157,12 @@ export function ReportsSection() {
           icon={Calendar}
           color="bg-chart-5/10 text-chart-5"
           index={3}
+          onView={() => setActiveReport("Forecast")}
         />
+      </div>
+
+      <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+        Viewing: <span className="font-medium text-foreground">{activeReport}</span>
       </div>
 
       {/* Charts row */}
@@ -238,7 +272,21 @@ export function ReportsSection() {
             <h3 className="text-base font-semibold text-foreground">Recent Reports</h3>
             <p className="text-sm text-muted-foreground mt-0.5">Your generated reports</p>
           </div>
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+          <button
+            onClick={() =>
+              setReports((current) => [
+                {
+                  id: `${Date.now()}`,
+                  name: "New Executive Snapshot",
+                  type: "Executive",
+                  date: "Just now",
+                  status: "ready",
+                },
+                ...current,
+              ])
+            }
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+          >
             <FileText className="w-4 h-4" />
             Generate New
           </button>
@@ -270,7 +318,10 @@ export function ReportsSection() {
                     Generating...
                   </div>
                 ) : (
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+                  <button
+                    onClick={() => downloadReport(report.name)}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
+                  >
                     <Download className="w-4 h-4" />
                     Download
                   </button>

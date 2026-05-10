@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  ReferenceArea,
 } from "recharts";
 
 const data = [
@@ -28,11 +29,64 @@ const data = [
 
 export function RevenueChart() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [dragStart, setDragStart] = useState<string | null>(null);
+  const [dragEnd, setDragEnd] = useState<string | null>(null);
+  const [selection, setSelection] = useState<{
+    start: string;
+    end: string;
+    change: number;
+    percent: number;
+  } | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
+
+  const getIndex = (month: string | null) => data.findIndex((item) => item.month === month);
+
+  const updateSelection = (startLabel: string | null, endLabel: string | null) => {
+    const startIndex = getIndex(startLabel);
+    const endIndex = getIndex(endLabel);
+
+    if (startIndex < 0 || endIndex < 0 || startIndex === endIndex) return;
+
+    const [from, to] = startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex];
+    const start = data[from];
+    const end = data[to];
+    const change = end.revenue - start.revenue;
+
+    setSelection({
+      start: start.month,
+      end: end.month,
+      change,
+      percent: (change / start.revenue) * 100,
+    });
+  };
+
+  const handleMouseDown = (state: { activeLabel?: string }) => {
+    if (!state.activeLabel) return;
+    setDragStart(state.activeLabel);
+    setDragEnd(state.activeLabel);
+    setSelection(null);
+  };
+
+  const handleMouseMove = (state: { activeLabel?: string }) => {
+    if (!dragStart || !state.activeLabel) return;
+    setDragEnd(state.activeLabel);
+    updateSelection(dragStart, state.activeLabel);
+  };
+
+  const handleMouseUp = () => {
+    updateSelection(dragStart, dragEnd);
+    setDragStart(null);
+    setDragEnd(null);
+  };
+
+  const referenceStart =
+    dragStart && dragEnd && getIndex(dragStart) <= getIndex(dragEnd) ? dragStart : dragEnd;
+  const referenceEnd =
+    dragStart && dragEnd && getIndex(dragStart) <= getIndex(dragEnd) ? dragEnd : dragStart;
 
   return (
     <div className="bg-card border border-border rounded-xl p-5 h-[380px] animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -51,11 +105,30 @@ export function RevenueChart() {
             <span className="text-muted-foreground">Target</span>
           </div>
         </div>
+        {selection && (
+          <div className="rounded-lg border border-border bg-secondary/70 px-3 py-2 text-right">
+            <p className="text-xs text-muted-foreground">
+              {selection.start}-{selection.end}
+            </p>
+            <p className={selection.change >= 0 ? "text-sm font-semibold text-success" : "text-sm font-semibold text-destructive"}>
+              {selection.change >= 0 ? "+" : ""}${Math.abs(selection.change / 1000).toFixed(0)}k{" "}
+              ({selection.percent >= 0 ? "+" : ""}
+              {selection.percent.toFixed(1)}%)
+            </p>
+          </div>
+        )}
       </div>
 
       <div className={`h-[280px] transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={data}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
             <defs>
               <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="oklch(0.7 0.18 220)" stopOpacity={0.4} />
@@ -92,6 +165,15 @@ export function RevenueChart() {
               itemStyle={{ color: "oklch(0.65 0 0)" }}
               formatter={(value: number) => [`$${(value / 1000).toFixed(0)}k`, ""]}
             />
+            {referenceStart && referenceEnd && referenceStart !== referenceEnd && (
+              <ReferenceArea
+                x1={referenceStart}
+                x2={referenceEnd}
+                strokeOpacity={0}
+                fill="oklch(0.7 0.18 145)"
+                fillOpacity={0.12}
+              />
+            )}
             <Area
               type="monotone"
               dataKey="target"

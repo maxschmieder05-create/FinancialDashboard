@@ -2,23 +2,41 @@
 
 import { cn } from "@/lib/utils";
 import type { Section } from "@/app/page";
-import { Bell, Search, Calendar } from "lucide-react";
+import { Bell, Calendar, Search, Settings, X } from "lucide-react";
 import { useState } from "react";
 
 interface HeaderProps {
   activeSection: Section;
+  onSectionChange: (section: Section) => void;
 }
 
 const sectionTitles: Record<Section, string> = {
   overview: "Overview",
   pipeline: "Pipeline",
   deals: "Deals",
+  customers: "Customers",
   team: "Team Performance",
+  forecasting: "Forecasting",
   reports: "Reports",
+  settings: "Settings",
 };
 
-export function Header({ activeSection }: HeaderProps) {
+const quickResults: { label: string; section: Section; detail: string }[] = [
+  { label: "Acme Corporation", section: "customers", detail: "Enterprise customer" },
+  { label: "Pipeline Forecast", section: "forecasting", detail: "Revenue forecast" },
+  { label: "Monthly Sales Summary", section: "reports", detail: "Ready report" },
+  { label: "Sarah Chen", section: "team", detail: "Top performer" },
+  { label: "GlobalFin Partners", section: "deals", detail: "Pending deal" },
+];
+
+export function Header({ activeSection, onSectionChange }: HeaderProps) {
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  const filteredResults = quickResults.filter((result) =>
+    result.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
@@ -44,25 +62,98 @@ export function Header({ activeSection }: HeaderProps) {
           <input
             type="text"
             placeholder="Search..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
             onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
+            onBlur={() => window.setTimeout(() => setSearchFocused(false), 120)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && filteredResults[0]) {
+                onSectionChange(filteredResults[0].section);
+                setSearchQuery("");
+              }
+            }}
             className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
           />
+          {searchFocused && searchQuery && (
+            <div className="absolute right-0 top-11 w-80 rounded-lg border border-border bg-card shadow-xl overflow-hidden">
+              {filteredResults.length > 0 ? (
+                filteredResults.map((result) => (
+                  <button
+                    key={result.label}
+                    onMouseDown={() => {
+                      onSectionChange(result.section);
+                      setSearchQuery("");
+                    }}
+                    className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors"
+                  >
+                    <span className="block text-sm font-medium text-foreground">{result.label}</span>
+                    <span className="block text-xs text-muted-foreground">{result.detail}</span>
+                  </button>
+                ))
+              ) : (
+                <div className="px-4 py-3 text-sm text-muted-foreground">No matching records</div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Notifications */}
-        <button className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200">
+        <button
+          onClick={() => setNotificationsOpen((open) => !open)}
+          className="relative w-9 h-9 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
+          aria-label="Toggle notifications"
+        >
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full animate-pulse" />
         </button>
 
         {/* User avatar */}
-        <button className="w-9 h-9 rounded-lg overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-accent/50 transition-all duration-200">
+        <button
+          onClick={() => onSectionChange("settings")}
+          className="w-9 h-9 rounded-lg overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-accent/50 transition-all duration-200"
+          aria-label="Open settings"
+        >
           <div className="w-full h-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-xs font-semibold text-accent-foreground">
             JD
           </div>
         </button>
       </div>
+      {notificationsOpen && (
+        <div className="absolute right-6 top-14 w-80 rounded-xl border border-border bg-card shadow-xl">
+          <div className="flex items-center justify-between border-b border-border p-4">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Notifications</p>
+              <p className="text-xs text-muted-foreground">3 updates need attention</p>
+            </div>
+            <button
+              onClick={() => setNotificationsOpen(false)}
+              className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              aria-label="Close notifications"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {[
+            "Acme moved to negotiation",
+            "Q2 forecast refreshed",
+            "Team report is ready",
+          ].map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+                if (item.includes("forecast")) onSectionChange("forecasting");
+                if (item.includes("report")) onSectionChange("reports");
+                if (item.includes("Acme")) onSectionChange("deals");
+                setNotificationsOpen(false);
+              }}
+              className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-secondary"
+            >
+              <Settings className="h-4 w-4 text-accent" />
+              <span className="text-sm text-foreground">{item}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </header>
   );
 }
