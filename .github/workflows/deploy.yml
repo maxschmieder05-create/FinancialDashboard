@@ -39,7 +39,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        run: |
+          if [ -d app/api ]; then mv app/api .app-api-disabled-for-pages; fi
+          STATIC_EXPORT=true pnpm build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
