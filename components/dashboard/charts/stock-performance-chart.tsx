@@ -103,14 +103,12 @@ function interpolateMaxHistory(progress: number, currentPrice: number, seed: num
   const right = maxHistoryAnchors[Math.max(1, nextIndex)];
   const left = maxHistoryAnchors[Math.max(0, Math.max(1, nextIndex) - 1)];
   const segmentProgress = (year - left.year) / Math.max(1, right.year - left.year);
-  const logLeft = Math.log(left.price);
-  const logRight = Math.log(right.price);
-  const base = Math.exp(logLeft + (logRight - logLeft) * segmentProgress);
-  const jagged = 1 + Math.sin(progress * 92 + seed) * 0.06 + Math.sin(progress * 311 + seed * 0.7) * 0.035;
+  const base = left.price + (right.price - left.price) * segmentProgress;
+  const jagged = Math.sin(progress * 92 + seed) * currentPrice * 0.006 + Math.sin(progress * 311 + seed * 0.7) * currentPrice * 0.0035;
 
   return {
     year: Math.round(year),
-    price: Math.max(0.01, Math.min(currentPrice, base * jagged)),
+    price: Math.max(0.01, Math.min(currentPrice, base + jagged)),
   };
 }
 
@@ -160,9 +158,18 @@ function rangeDescription(range: RangeKey) {
 }
 
 function getRangeTicks(data: PricePoint[], range: RangeKey) {
+  if (range === "Max") return ["1986", "1996", "2006", "2016", "2026"];
+
   const every = rangeConfig[range].labelEvery;
   const ticks = data.filter((_, index) => index === 0 || index === data.length - 1 || index % every === 0).map((item) => item.label);
   return [...new Set(ticks)];
+}
+
+function getYAxisTicks(high: number, range: RangeKey) {
+  if (range !== "Max") return undefined;
+
+  const maxTick = Math.ceil(high / 200) * 200;
+  return Array.from({ length: maxTick / 200 + 1 }, (_, index) => index * 200);
 }
 
 export function StockPerformanceChart({
@@ -204,7 +211,7 @@ export function StockPerformanceChart({
   const afterHoursChange = afterHoursPrice - liveCompany.currentPrice;
   const afterHoursPercent = (afterHoursChange / liveCompany.currentPrice) * 100;
   const yDomain: [number | string, number | string] =
-    range === "Max" ? [Math.max(1, low * 0.75), high * 1.25] : ["dataMin - 1", "dataMax + 1"];
+    range === "Max" ? [0, Math.ceil((high * 1.08) / 100) * 100] : ["dataMin - 1", "dataMax + 1"];
 
   return (
     <div className="min-h-[620px] rounded-xl border border-border bg-card p-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -286,8 +293,8 @@ export function StockPerformanceChart({
             />
             <YAxis
               domain={yDomain}
-              scale={range === "Max" ? "log" : "auto"}
-              allowDataOverflow={range === "Max"}
+              scale="linear"
+              ticks={getYAxisTicks(high, range)}
               orientation="left"
               axisLine={false}
               tickLine={false}

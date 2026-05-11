@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { AuthScreen } from "@/components/auth/auth-screen";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { OverviewSection } from "@/components/dashboard/sections/overview";
@@ -10,6 +12,7 @@ import { CustomersSection } from "@/components/dashboard/sections/customers";
 import { ForecastingSection } from "@/components/dashboard/sections/forecasting";
 import { NewsSection } from "@/components/dashboard/sections/news";
 import { topIndustrialCompanies } from "@/lib/industrials-data";
+import { getSupabaseClient } from "@/lib/supabase-client";
 
 export type Section = "overview" | "pipeline" | "deals" | "customers" | "forecasting" | "news";
 
@@ -18,6 +21,36 @@ export default function Dashboard() {
   const [selectedTicker, setSelectedTicker] = useState(topIndustrialCompanies[0].ticker);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(260);
+  const [session, setSession] = useState<Session | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = getSupabaseClient();
+
+    if (!supabase) {
+      setAuthLoading(false);
+      return;
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setAuthLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const supabase = getSupabaseClient();
+    await supabase?.auth.signOut();
+  };
 
   const renderSection = () => {
     switch (activeSection) {
@@ -50,6 +83,18 @@ export default function Dashboard() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <AuthScreen />;
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar
@@ -69,6 +114,8 @@ export default function Dashboard() {
           selectedTicker={selectedTicker}
           onTickerChange={setSelectedTicker}
           onSectionChange={setActiveSection}
+          userEmail={session.user.email ?? ""}
+          onSignOut={handleSignOut}
         />
         <main className="flex-1 p-6 overflow-auto">
           <div

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Section } from "@/app/page";
-import { Bell, Search, Settings, X } from "lucide-react";
+import { Bell, LogOut, Search, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { CompanySelector } from "@/components/dashboard/company-selector";
 import { topIndustrialCompanies } from "@/lib/industrials-data";
@@ -12,6 +12,8 @@ interface HeaderProps {
   selectedTicker: string;
   onTickerChange: (ticker: string) => void;
   onSectionChange: (section: Section) => void;
+  userEmail: string;
+  onSignOut: () => void;
 }
 
 const sectionTitles: Record<Section, string> = {
@@ -35,10 +37,18 @@ const quickResults: { label: string; section: Section; detail: string }[] = [
   { label: "Industrials News", section: "news", detail: "Daily tracked-company headlines" },
 ];
 
-export function Header({ activeSection, selectedTicker, onTickerChange, onSectionChange }: HeaderProps) {
+export function Header({
+  activeSection,
+  selectedTicker,
+  onTickerChange,
+  onSectionChange,
+  userEmail,
+  onSignOut,
+}: HeaderProps) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const filteredResults = quickResults
     .filter((result) => result.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
@@ -70,6 +80,8 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
 
     if (filteredResults[0]) chooseResult(filteredResults[0]);
   };
+
+  const initials = userEmail.slice(0, 2).toUpperCase();
 
   return (
     <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
@@ -135,11 +147,12 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
 
         {/* User avatar */}
         <button
+          onClick={() => setProfileOpen((open) => !open)}
           className="w-9 h-9 rounded-lg overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-accent/50 transition-all duration-200"
-          aria-label="User profile"
+          aria-label="Toggle user menu"
         >
           <div className="w-full h-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-xs font-semibold text-accent-foreground">
-            JD
+            {initials}
           </div>
         </button>
       </div>
@@ -177,6 +190,24 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
               <span className="text-sm text-foreground">{item}</span>
             </button>
           ))}
+        </div>
+      )}
+      {profileOpen && (
+        <div className="absolute right-6 top-14 w-64 rounded-xl border border-border bg-card shadow-xl">
+          <div className="border-b border-border p-4">
+            <p className="text-sm font-semibold text-foreground">Signed in</p>
+            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+          </div>
+          <button
+            onClick={() => {
+              setProfileOpen(false);
+              onSignOut();
+            }}
+            className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-foreground hover:bg-secondary"
+          >
+            <LogOut className="h-4 w-4 text-muted-foreground" />
+            Log out
+          </button>
         </div>
       )}
     </header>

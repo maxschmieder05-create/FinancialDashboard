@@ -128,7 +128,7 @@ async function getAlphaVantageSnapshot(symbol: string): Promise<MarketDataSnapsh
     analystTargetPrice: Number.isFinite(analystTargetPrice) ? analystTargetPrice : undefined,
     marketCap: typeof marketCapRaw === "number" && Number.isFinite(marketCapRaw) ? marketCapRaw / 1_000_000_000 : undefined,
     peRatio: Number.isFinite(peRatio) ? peRatio : undefined,
-    dividendYield: Number.isFinite(dividendYield) ? dividendYield * 100 : undefined,
+    dividendYield: typeof dividendYield === "number" && Number.isFinite(dividendYield) ? dividendYield * 100 : undefined,
     dividendPerShare: Number.isFinite(dividendPerShare) ? dividendPerShare : undefined,
     fiftyTwoWeekHigh: Number.isFinite(fiftyTwoWeekHigh) ? fiftyTwoWeekHigh : undefined,
     fiftyTwoWeekLow: Number.isFinite(fiftyTwoWeekLow) ? fiftyTwoWeekLow : undefined,
