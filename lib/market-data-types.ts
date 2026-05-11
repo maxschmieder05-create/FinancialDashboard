@@ -20,6 +20,11 @@ export type MarketDataSnapshot = {
   change?: number;
   changePercent?: number;
   marketCap?: number;
+  peRatio?: number;
+  dividendYield?: number;
+  dividendPerShare?: number;
+  fiftyTwoWeekHigh?: number;
+  fiftyTwoWeekLow?: number;
   analystTargetPrice?: number;
   targetHigh?: number;
   targetLow?: number;

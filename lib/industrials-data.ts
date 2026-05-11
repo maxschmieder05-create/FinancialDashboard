@@ -23,6 +23,7 @@ export type IndustrialDeal = {
   date: string;
   status: string;
   rationale: string;
+  articleUrl: string;
 };
 
 export const topIndustrialCompanies: IndustrialCompany[] = [
@@ -413,6 +414,7 @@ export const recentIndustrialDeals: IndustrialDeal[] = [
     date: "Apr 2026",
     status: "Signed",
     rationale: "Corporate carve-out of a warehouse automation business with about $935M of 2025 revenue.",
+    articleUrl: "https://www.google.com/search?tbm=nws&q=American+Industrial+Partners+Honeywell+Warehouse+Workflow+Solutions",
   },
   {
     id: "hon-sundyne",
@@ -423,6 +425,7 @@ export const recentIndustrialDeals: IndustrialDeal[] = [
     date: "Jun 2025",
     status: "Completed",
     rationale: "Adds engineered pumps and compressors for refining, petrochemicals, LNG, and renewable fuels.",
+    articleUrl: "https://www.google.com/search?tbm=nws&q=Honeywell+Sundyne+2.16B+acquisition",
   },
   {
     id: "ph-filtration",
@@ -433,6 +436,7 @@ export const recentIndustrialDeals: IndustrialDeal[] = [
     date: "2026",
     status: "Announced",
     rationale: "Expands filtration exposure across life sciences, indoor air quality, and industrial process markets.",
+    articleUrl: "https://www.google.com/search?tbm=nws&q=Parker-Hannifin+Filtration+Group+9.25B+acquisition",
   },
   {
     id: "flowserve-chart",
@@ -442,6 +446,7 @@ export const recentIndustrialDeals: IndustrialDeal[] = [
     date: "2025-2026",
     status: "Contested",
     rationale: "Industrial gas, LNG, and energy-transition equipment consolidation.",
+    articleUrl: "https://www.google.com/search?tbm=nws&q=Flowserve+Baker+Hughes+Chart+Industries+deal",
   },
   {
     id: "tdg-simmonds",
@@ -452,6 +457,7 @@ export const recentIndustrialDeals: IndustrialDeal[] = [
     date: "Q4 2025",
     status: "Completed",
     rationale: "Aerospace component portfolio reshaping and aftermarket-focused acquisition.",
+    articleUrl: "https://www.google.com/search?tbm=nws&q=TransDigm+Simmonds+Precision+Products+RTX+765M",
   },
 ];
 

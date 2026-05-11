@@ -13,6 +13,7 @@ import {
   Building2,
   TrendingUp,
   BadgeDollarSign,
+  Newspaper,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -30,6 +31,7 @@ const navItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "deals", label: "Deals", icon: Handshake },
   { id: "customers", label: "Customers", icon: Building2 },
   { id: "forecasting", label: "Forecasting", icon: TrendingUp },
+  { id: "news", label: "News", icon: Newspaper },
 ];
 
 export function Sidebar({

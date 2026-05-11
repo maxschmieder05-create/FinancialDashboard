@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Section } from "@/app/page";
-import { Bell, Calendar, Search, Settings, X } from "lucide-react";
+import { Bell, LogOut, Search, Settings, X } from "lucide-react";
 import { useState } from "react";
 import { CompanySelector } from "@/components/dashboard/company-selector";
 import { topIndustrialCompanies } from "@/lib/industrials-data";
@@ -12,6 +12,8 @@ interface HeaderProps {
   selectedTicker: string;
   onTickerChange: (ticker: string) => void;
   onSectionChange: (section: Section) => void;
+  userEmail: string;
+  onSignOut: () => void;
 }
 
 const sectionTitles: Record<Section, string> = {
@@ -20,10 +22,11 @@ const sectionTitles: Record<Section, string> = {
   deals: "Deals",
   customers: "Customers",
   forecasting: "Forecasting",
+  news: "News",
 };
 
 const quickResults: { label: string; section: Section; detail: string }[] = [
-  ...topIndustrialCompanies.slice(0, 8).map((company) => ({
+  ...topIndustrialCompanies.map((company) => ({
     label: `${company.ticker} ${company.name}`,
     section: "overview" as Section,
     detail: company.industry,
@@ -31,16 +34,54 @@ const quickResults: { label: string; section: Section; detail: string }[] = [
   { label: "Industrials M&A", section: "deals", detail: "Recent sector transactions" },
   { label: "Revenue Forecast", section: "forecasting", detail: "Company revenue and price outlook" },
   { label: "Top Clients", section: "customers", detail: "Customer concentration by company" },
+  { label: "Industrials News", section: "news", detail: "Daily tracked-company headlines" },
 ];
 
-export function Header({ activeSection, selectedTicker, onTickerChange, onSectionChange }: HeaderProps) {
+export function Header({
+  activeSection,
+  selectedTicker,
+  onTickerChange,
+  onSectionChange,
+  userEmail,
+  onSignOut,
+}: HeaderProps) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-  const filteredResults = quickResults.filter((result) =>
-    result.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredResults = quickResults
+    .filter((result) => result.label.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    .slice(0, 8);
+
+  const chooseResult = (result: { label: string; section: Section }) => {
+    onSectionChange(result.section);
+    const ticker = topIndustrialCompanies.find((company) =>
+      result.label.startsWith(`${company.ticker} `)
+    )?.ticker;
+    if (ticker) onTickerChange(ticker);
+    setSearchQuery("");
+    setSearchFocused(false);
+  };
+
+  const chooseBestSearchResult = () => {
+    const query = searchQuery.trim().toLowerCase();
+    const exactCompany = topIndustrialCompanies.find(
+      (company) => company.ticker.toLowerCase() === query || company.name.toLowerCase() === query
+    );
+
+    if (exactCompany) {
+      onTickerChange(exactCompany.ticker);
+      onSectionChange("overview");
+      setSearchQuery("");
+      setSearchFocused(false);
+      return;
+    }
+
+    if (filteredResults[0]) chooseResult(filteredResults[0]);
+  };
+
+  const initials = userEmail.slice(0, 2).toUpperCase();
 
   return (
     <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30 flex items-center justify-between px-6">
@@ -48,10 +89,6 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
         <h1 className="text-xl font-semibold text-foreground">
           {sectionTitles[activeSection]}
         </h1>
-        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          <span>Top 25 industrials</span>
-        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -74,14 +111,7 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
             onFocus={() => setSearchFocused(true)}
             onBlur={() => window.setTimeout(() => setSearchFocused(false), 120)}
             onKeyDown={(event) => {
-              if (event.key === "Enter" && filteredResults[0]) {
-                onSectionChange(filteredResults[0].section);
-                const ticker = topIndustrialCompanies.find((company) =>
-                  filteredResults[0].label.startsWith(company.ticker)
-                )?.ticker;
-                if (ticker) onTickerChange(ticker);
-                setSearchQuery("");
-              }
+              if (event.key === "Enter") chooseBestSearchResult();
             }}
             className="w-full h-9 pl-9 pr-4 rounded-lg bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-accent transition-all duration-200"
           />
@@ -91,14 +121,7 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
                 filteredResults.map((result) => (
                   <button
                     key={result.label}
-                    onMouseDown={() => {
-                      onSectionChange(result.section);
-                      const ticker = topIndustrialCompanies.find((company) =>
-                        result.label.startsWith(company.ticker)
-                      )?.ticker;
-                      if (ticker) onTickerChange(ticker);
-                      setSearchQuery("");
-                    }}
+                    onMouseDown={() => chooseResult(result)}
                     className="w-full px-4 py-3 text-left hover:bg-secondary transition-colors"
                   >
                     <span className="block text-sm font-medium text-foreground">{result.label}</span>
@@ -124,11 +147,12 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
 
         {/* User avatar */}
         <button
+          onClick={() => setProfileOpen((open) => !open)}
           className="w-9 h-9 rounded-lg overflow-hidden bg-secondary ring-2 ring-transparent hover:ring-accent/50 transition-all duration-200"
-          aria-label="User profile"
+          aria-label="Toggle user menu"
         >
           <div className="w-full h-full bg-gradient-to-br from-accent/80 to-chart-1 flex items-center justify-center text-xs font-semibold text-accent-foreground">
-            JD
+            {initials}
           </div>
         </button>
       </div>
@@ -166,6 +190,24 @@ export function Header({ activeSection, selectedTicker, onTickerChange, onSectio
               <span className="text-sm text-foreground">{item}</span>
             </button>
           ))}
+        </div>
+      )}
+      {profileOpen && (
+        <div className="absolute right-6 top-14 w-64 rounded-xl border border-border bg-card shadow-xl">
+          <div className="border-b border-border p-4">
+            <p className="text-sm font-semibold text-foreground">Signed in</p>
+            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+          </div>
+          <button
+            onClick={() => {
+              setProfileOpen(false);
+              onSignOut();
+            }}
+            className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-foreground hover:bg-secondary"
+          >
+            <LogOut className="h-4 w-4 text-muted-foreground" />
+            Log out
+          </button>
         </div>
       )}
     </header>

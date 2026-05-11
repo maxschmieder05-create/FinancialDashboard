@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import { CompanySelector } from "@/components/dashboard/company-selector";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getCompany, recentIndustrialDeals } from "@/lib/industrials-data";
-import { ArrowUpDown, Handshake, Search } from "lucide-react";
+import { ArrowUpDown, ExternalLink, Handshake, Search } from "lucide-react";
 
 export function DealsSection({
   selectedTicker,
@@ -104,7 +104,15 @@ export function DealsSection({
                     <Handshake className="h-5 w-5" />
                   </div>
                   <div>
-                    <CardTitle className="text-base">{deal.acquirer}</CardTitle>
+                    <a
+                      href={deal.articleUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-base font-semibold text-foreground hover:text-accent"
+                    >
+                      {deal.acquirer}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
                     <p className="mt-1 text-sm text-muted-foreground">{deal.target}</p>
                   </div>
                 </div>
